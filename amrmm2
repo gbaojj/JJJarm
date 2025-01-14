@@ -11,6 +11,7 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     Main = Window:AddTab({ Title = "Prison Event", Icon = "siren" })
+
 }
 
 -- Add timer variables at top
