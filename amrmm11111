@@ -271,15 +271,38 @@ AutoContrabandToggle:OnChanged(function()
 end)
 local Options = Fluent.Options
 
+local ConfigSection = Tabs.Main:AddSection("Configuration")
+
 SaveManager:SetLibrary(Fluent)
+SaveManager:SetFolder("FluentScriptHub/MyGame")
 SaveManager:IgnoreThemeSettings()
-SaveManager:SetFolder("FluentScriptHub/specific-game")
 SaveManager:BuildConfigSection(Tabs.Main)
-SaveManager:AddToSave({ AutoBeatNPCToggle, AutoBuyToggle, AutoSpinToggle, AutoContrabandToggle })
-Window:SelectTab(1)
-Fluent:Notify({
-    Title = "Fluent",
-    Content = "The script has been loaded.",
-    Duration = 8
+
+-- Nút lưu cấu hình
+ConfigSection:AddButton({
+    Title = "Save Config",
+    Description = "Lưu cấu hình hiện tại.",
+    Callback = function()
+        SaveManager:SaveConfig("MyConfig")
+        Fluent:Notify({
+            Title = "Success",
+            Content = "Cấu hình đã được lưu thành công!",
+            Duration = 5
+        })
+    end
+})
+
+-- Nút tải lại cấu hình
+ConfigSection:AddButton({
+    Title = "Load Config",
+    Description = "Tải lại cấu hình đã lưu.",
+    Callback = function()
+        SaveManager:LoadConfig("MyConfig")
+        Fluent:Notify({
+            Title = "Success",
+            Content = "Cấu hình đã được tải lại!",
+            Duration = 5
+        })
+    end
 })
 SaveManager:LoadAutoloadConfig()
