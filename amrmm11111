@@ -279,7 +279,7 @@ SaveManager:IgnoreThemeSettings()
 SaveManager:BuildConfigSection(Tabs.Main)
 
 -- Nút lưu cấu hình
-ConfigSection:AddButton({
+ConfigSection.Main:AddButton({
     Title = "Save Config",
     Description = "Lưu cấu hình hiện tại.",
     Callback = function()
@@ -293,7 +293,7 @@ ConfigSection:AddButton({
 })
 
 -- Nút tải lại cấu hình
-ConfigSection:AddButton({
+ConfigSection.Main:AddButton({
     Title = "Load Config",
     Description = "Tải lại cấu hình đã lưu.",
     Callback = function()
