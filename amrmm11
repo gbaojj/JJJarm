@@ -275,5 +275,10 @@ SaveManager:SetLibrary(Fluent)
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetFolder("FluentScriptHub/specific-game")
 SaveManager:BuildConfigSection(Tabs.Main)
-
+Window:SelectTab(1)
+Fluent:Notify({
+    Title = "Fluent",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
 SaveManager:LoadAutoloadConfig()
