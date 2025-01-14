@@ -270,16 +270,13 @@ AutoContrabandToggle:OnChanged(function()
     end
 end)
 local Options = Fluent.Options
-
-local ConfigSection = Tabs.Main:AddSection("Configuration")
-
 SaveManager:SetLibrary(Fluent)
 SaveManager:SetFolder("FluentScriptHub/MyGame")
 SaveManager:IgnoreThemeSettings()
 SaveManager:BuildConfigSection(Tabs.Main)
 
 -- Nút lưu cấu hình
-ConfigSection.Main:AddButton({
+Tabs.Main:AddButton({
     Title = "Save Config",
     Description = "Lưu cấu hình hiện tại.",
     Callback = function()
@@ -293,7 +290,7 @@ ConfigSection.Main:AddButton({
 })
 
 -- Nút tải lại cấu hình
-ConfigSection.Main:AddButton({
+Tabs.Main:AddButton({
     Title = "Load Config",
     Description = "Tải lại cấu hình đã lưu.",
     Callback = function()
