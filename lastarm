@@ -274,6 +274,13 @@ AutoContrabandToggle:OnChanged(function()
     end
 end)
 
+local OtherSection = Tabs.Main:AddSection("Scripts")
+    OtherSection:AddButton({
+        Title = "Anti AFK",
+        Callback = function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/batusz/main/roblox/__Anti__Afk__Script__", true))()
+    end
+})
 
 
 
