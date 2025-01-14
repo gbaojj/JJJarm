@@ -13,15 +13,6 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     Main = Window:AddTab({ Title = "Prison Event", Icon = "siren" })
 }
-local Options = Fluent.Options
-
-SaveManager:SetLibrary(Fluent)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetFolder("FluentScriptHub/specific-game")
-SaveManager:BuildConfigSection(Tabs.Main)
-
-
-
 
 -- Add timer variables at top
 local timerText = workspace.Zones.ChristmasEvent.Interactables.SnowstormTimer.Timer.Timer.UpdateTimer
@@ -278,4 +269,11 @@ AutoContrabandToggle:OnChanged(function()
         end)
     end
 end)
+local Options = Fluent.Options
+
+SaveManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+SaveManager:BuildConfigSection(Tabs.Main)
+
 SaveManager:LoadAutoloadConfig()
