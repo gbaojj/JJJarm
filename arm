@@ -9,7 +9,6 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
-
 local Tabs = {
     Main = Window:AddTab({ Title = "Prison Event", Icon = "siren" })
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
