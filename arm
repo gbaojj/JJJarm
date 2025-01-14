@@ -139,7 +139,7 @@ AutoBeatNPCToggle:OnChanged(function()
                         end
                     end
                 else
-                    print("Timer too low:", timeLeft, "- Paused")
+                    
                     wait(2.5)
                     wait(1)
                 end
