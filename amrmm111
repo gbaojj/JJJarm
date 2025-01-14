@@ -275,6 +275,7 @@ SaveManager:SetLibrary(Fluent)
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetFolder("FluentScriptHub/specific-game")
 SaveManager:BuildConfigSection(Tabs.Main)
+SaveManager:AddToSave({ AutoBeatNPCToggle, AutoBuyToggle, AutoSpinToggle, AutoContrabandToggle })
 Window:SelectTab(1)
 Fluent:Notify({
     Title = "Fluent",
