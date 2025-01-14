@@ -1,5 +1,4 @@
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local Window = Fluent:CreateWindow({
     Title = "Prisoner Event",
     SubTitle = "by JJ",
@@ -15,22 +14,6 @@ local Tabs = {
     Main = Window:AddTab({ Title = "Prison Event", Icon = "siren" })
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
-SaveManager:SetLibrary(Fluent)
-SaveManager:SetFolder("FluentScriptHub/specific-game")
-SaveManager:BuildConfigSection(Tabs.Settings)
-
-
-Window:SelectTab(1)
-
-Fluent:Notify({
-    Title = "Fluent",
-    Content = "The script has been loaded.",
-    Duration = 8
-})
-
--- You can use the SaveManager:LoadAutoloadConfig() to load a config
--- which has been marked to be one that auto loads!
-SaveManager:LoadAutoloadConfig()
 
 -- Add timer variables at top
 local timerText = workspace.Zones.ChristmasEvent.Interactables.SnowstormTimer.Timer.Timer.UpdateTimer
