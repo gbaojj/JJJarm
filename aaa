@@ -26,19 +26,6 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local npcFolderPath = workspace.GameObjects.RngNPCs.BlossomVillage.Npc
 local isAutoFarming = false
 
--- Hàm kiểm tra và in lỗi nếu NPC không đúng cấu trúc
-local function validateNPC(npc)
-    if not npc:IsA("Model") then
-        return false, "Không phải Model."
-    end
-
-    if not npc:FindFirstChild("ProximityPrompt") then
-        return false, "Không có ProximityPrompt."
-    end
-
-    return true
-end
-
 -- Hàm di chuyển tới NPC
 local function moveToNPC(npc)
     local humanoidRootPart = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
@@ -47,9 +34,30 @@ local function moveToNPC(npc)
         return false
     end
 
-    local targetPosition = npc.PrimaryPart and npc.PrimaryPart.Position or npc:GetBoundingBox().Position
+    -- Kiểm tra và lấy vị trí
+    local targetPosition
+    if npc.PrimaryPart then
+        targetPosition = npc.PrimaryPart.Position
+    else
+        targetPosition = npc:GetBoundingBox().Position -- Lấy vị trí trung tâm nếu không có PrimaryPart
+    end
+
     humanoidRootPart.CFrame = CFrame.new(targetPosition)
     return true
+end
+
+-- Hàm kiểm tra NPC hợp lệ
+local function validateNPC(npc)
+    if not npc:IsA("Model") then
+        return false, "Không phải Model."
+    end
+
+    local prompt = npc:FindFirstChildOfClass("ProximityPrompt") -- Tìm ProximityPrompt
+    if not prompt then
+        return false, "Không có ProximityPrompt."
+    end
+
+    return true, prompt
 end
 
 -- Hàm mô phỏng nhấn phím
@@ -77,16 +85,15 @@ AutoBeatNPCToggle:OnChanged(function()
                 for _, npc in ipairs(npcFolderPath:GetChildren()) do
                     if not isAutoFarming then break end
 
-                    local isValid, errorMessage = validateNPC(npc)
+                    local isValid, prompt = validateNPC(npc)
                     if not isValid then
-                        warn("NPC không hợp lệ:", npc.Name, "-", errorMessage)
+                        warn("NPC không hợp lệ:", npc.Name)
                         continue
                     end
 
                     if moveToNPC(npc) then
                         task.wait(1)
 
-                        local prompt = npc:FindFirstChild("ProximityPrompt")
                         if prompt and prompt.Enabled then
                             simulateKeyPress()
                             task.wait(1.5) -- Thời gian chờ giữa các lần tấn công
@@ -102,6 +109,7 @@ AutoBeatNPCToggle:OnChanged(function()
         print("Auto Beat NPC stopped.")
     end
 end)
+
 
 
 
