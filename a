@@ -22,10 +22,13 @@ local Options = Fluent.Options
 
 -- ...rest of existing code...
 local NPCSection = Tabs.Main:AddSection("Auto NPC Farm")
+-- ...rest of existing code...
+local NPCSection = Tabs.Main:AddSection("Auto NPC Farm")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local npcFolderPath = workspace.GameObjects.RngNPCs.BlossomVillage.Npc
 local isAutoFarming = false
-local isBossFighting = false
+
+-- Hàm cập nhật ProximityPrompt
 local function updateProximityPrompts(folder)
     for _, descendant in ipairs(folder:GetDescendants()) do
         if descendant:IsA("ProximityPrompt") then
@@ -36,15 +39,17 @@ local function updateProximityPrompts(folder)
     end
 end
 
+-- Hàm mô phỏng nhấn phím
 local function simulateKeyPress()
     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
     task.wait(0.5)
-    task.wait(1)
     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 end
 
+-- Toggle Auto Beat NPC
 local AutoBeatNPCToggle = Tabs.Main:AddToggle("AutoBeatNPC", {
     Title = "Auto Beat NPC",
+    Description = "Auto interact with NPCs in Blossom Village.",
     Default = false
 })
 
@@ -52,36 +57,51 @@ AutoBeatNPCToggle:OnChanged(function()
     isAutoFarming = AutoBeatNPCToggle.Value
 
     if isAutoFarming then
-        -- Bắt đầu Auto Farming
+        print("Auto Beat NPC started.")
+        
+        -- Bắt đầu vòng lặp chính
         spawn(function()
             while isAutoFarming do
-                -- Cập nhật các ProximityPrompt
-                updateProximityPrompts(npcFolder)
+                -- Cập nhật ProximityPrompt
+                updateProximityPrompts(npcFolderPath)
 
-                -- Lặp qua các NPC
-                for _, npc in ipairs(npcFolder:GetChildren()) do
+                -- Lặp qua các NPC trong thư mục
+                for _, npc in ipairs(npcFolderPath:GetChildren()) do
                     if not isAutoFarming then break end
 
                     if npc:IsA("Model") and npc:FindFirstChild("ProximityPrompt") then
-                        -- Di chuyển đến NPC
+                        local prompt = npc:FindFirstChild("ProximityPrompt")
                         local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        
                         if humanoid and npc:FindFirstChild("PrimaryPart") then
+                            -- Di chuyển tới NPC
                             humanoid.CFrame = npc.PrimaryPart.CFrame
                             task.wait(1)
-                        end
 
-                        -- Tương tác với ProximityPrompt
-                        simulateKeyPress()
-                        task.wait(1.5) -- Thời gian chờ giữa các lần tương tác
+                            -- Tương tác với ProximityPrompt
+                            if prompt and prompt.Enabled then
+                                simulateKeyPress()
+                                task.wait(1.5) -- Thời gian chờ giữa các tương tác
+                            else
+                                warn("ProximityPrompt không khả dụng tại NPC:", npc.Name)
+                            end
+                        else
+                            warn("Không tìm thấy HumanoidRootPart hoặc PrimaryPart tại NPC:", npc.Name)
+                        end
+                    else
+                        warn("NPC không hợp lệ hoặc không có ProximityPrompt:", npc.Name)
                     end
                 end
 
-                -- Chờ một chút trước khi lặp lại
+                -- Chờ một khoảng thời gian trước khi lặp lại
                 task.wait(2)
             end
         end)
+    else
+        print("Auto Beat NPC stopped.")
     end
 end)
+
 
 local OtherSection = Tabs.Main:AddSection("Scripts")
     OtherSection:AddButton({
