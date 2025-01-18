@@ -120,6 +120,21 @@ AutoBeatNPCToggle:OnChanged(function()
 end)
 
 
+local TowerSection = Tabs.Main:AddSection("Towers")
+TowerSection:AddButton({
+    Title = "Use All Ninja Keys (250x)",
+    Callback = function()
+        local args = {
+            [1] = "NinjaTower",
+            [2] = true
+        }
+        game:GetService("ReplicatedStorage").Packages.Knit.Services.TowerService.RF.EnterTower:InvokeServer(unpack(args))
+    end
+})
+
+
+
+
 
 
 
