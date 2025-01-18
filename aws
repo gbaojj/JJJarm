@@ -121,16 +121,26 @@ end)
 
 
 local TowerSection = Tabs.Main:AddSection("Towers")
-TowerSection:AddButton({
-    Title = "Use All Ninja Keys (250x)",
-    Callback = function()
-        local args = {
-            [1] = "NinjaTower",
-            [2] = true
-        }
-        game:GetService("ReplicatedStorage").Packages.Knit.Services.TowerService.RF.EnterTower:InvokeServer(unpack(args))
+local UseAllNinjaKeysToggle = Tabs.Main:AddToggle("AutoTower", {
+    Title = "Tower",
+    Default = false
+}}
+UseAllNinjaKeysToggle:OnChanged(function()
+    if UseAllNinjaKeysToggle.Value then
+        -- Bắt đầu vòng lặp khi toggle bật
+        spawn(function()
+            while UseAllNinjaKeysToggle.Value do
+                local args = {
+                    [1] = "NinjaTower",
+                    [2] = true
+                }
+                -- Gọi vào server mỗi lần trong vòng lặp
+                game:GetService("ReplicatedStorage").Packages.Knit.Services.TowerService.RF.EnterTower:InvokeServer(unpack(args))
+                wait(1)  -- Thời gian chờ giữa mỗi lần gọi
+            end
+        end)
     end
-})
+end)
 
 
 
