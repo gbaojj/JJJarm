@@ -94,17 +94,18 @@ AutoBeatNPCToggle:OnChanged(function()
         
         -- Main NPC farming loop
 local TweenService = game:GetService("TweenService")
-        spawn(function()
-            while true do
+
+spawn(function()
+    while true do
+        if not AutoBeatNPCToggle.Value then break end
+        local npcs = npcPath:GetChildren()  -- Đã thay đổi từ snowstormPath
+        if #npcs > 0 then
+            for _, npc in ipairs(npcs) do
                 if not AutoBeatNPCToggle.Value then break end
-                local npcs = npcPath:GetChildren()  -- Đã thay đổi từ snowstormPath
-                if #npcs > 0 then
-                    for _, npc in ipairs(npcs) do
-                        if not AutoBeatNPCToggle.Value then break end
                 
-                        if npc:IsA("Model") and npc:FindFirstChild("Table") and 
-                           npc.Table:FindFirstChild("PlayerRoot") then
-                            local humanoidRootPart = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if npc:IsA("Model") and npc:FindFirstChild("Table") and 
+                   npc.Table:FindFirstChild("PlayerRoot") then
+                    local humanoidRootPart = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                     if humanoidRootPart then
                         -- Tạo một Tween để di chuyển đến NPC
                         local goal = {CFrame = npc.Table.PlayerRoot.CFrame}
@@ -120,6 +121,7 @@ local TweenService = game:GetService("TweenService")
         end
     end
 end)
+
 
 
 
