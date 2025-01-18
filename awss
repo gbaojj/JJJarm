@@ -150,7 +150,14 @@ UseAllNinjaKeysToggle:OnChanged(function()
         end)
     end
 end)
+local MerchantSection = Tabs.Main:AddSection("Merchant")
 
+local BlackMarketDropdown = Tabs.Main:AddDropdown("BlackMarketDropdown", {
+    Title = "Select Merchant Slot(s)",
+    Values = {1, 2, 3, 4, 5},
+    Multi = true,
+    Default = {}
+})
 local AutoBuyToggle = Tabs.Main:AddToggle("AutoBuyToggle", {
     Title = "Auto Buy (Selected Slots)",
     Default = false
