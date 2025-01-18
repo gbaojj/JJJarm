@@ -41,8 +41,8 @@ end
 
 local function simulateKeyPress()
     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-    task.wait(0.5)
-    task.wait(1)
+    task.wait(0.4)
+    task.wait(0.88)
     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 end
 
@@ -67,7 +67,7 @@ AutoBeatNPCToggle:OnChanged(function()
                     print("No remote invoke detected for 20 seconds, triggering teleport")
                     handleTeleport()
                 end
-                wait(15)
+                wait(10)
             end
         end)
         
@@ -106,7 +106,7 @@ AutoBeatNPCToggle:OnChanged(function()
                             local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                             if humanoid then
                                 humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                                wait(3.6)
+                                wait(3.2)
                             end
                         end
                     end
