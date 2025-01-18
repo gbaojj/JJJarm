@@ -106,7 +106,7 @@ AutoBeatNPCToggle:OnChanged(function()
                             local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                             if humanoid then
                                 humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                                wait(3)
+                                wait(3.6)
                             end
                         end
                     end
