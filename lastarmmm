@@ -1,0 +1,133 @@
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnAutoFight:InvokeServer()
+
+local Window = Fluent:CreateWindow({
+    Title = "Arm ",
+    SubTitle = "by gbao",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true, 
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl })
+
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+local Options = Fluent.Options
+
+-- ...rest of existing code...
+local NPCSection = Tabs.Main:AddSection("Auto NPC Farm")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local npcFolderPath = workspace.GameObjects.ArmWrestling.NinjaSchool.NPC
+local isAutoFarming = false
+local isBossFighting = false
+local function updateProximityPrompts(folder)
+    for _, descendant in ipairs(folder:GetDescendants()) do
+        if descendant:IsA("ProximityPrompt") then
+            descendant.HoldDuration = 0
+            descendant.Style = Enum.ProximityPromptStyle.Default
+            descendant.MaxActivationDistance = 6
+        end
+    end
+end
+
+local function simulateKeyPress()
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+    task.wait(0.5)
+    task.wait(1)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+end
+
+local AutoBeatNPCToggle = Tabs.Main:AddToggle("AutoBeatNPC", {
+    Title = "Auto Beat NPC",
+    Default = false
+})
+
+AutoBeatNPCToggle:OnChanged(function()
+    isAutoFarming = AutoBeatNPCToggle.Value
+
+    if isAutoFarming then
+        -- Bắt đầu Auto Farming
+        spawn(function()
+            while isAutoFarming do
+                -- Cập nhật các ProximityPrompt
+                updateProximityPrompts(npcFolder)
+
+                -- Lặp qua các NPC
+                for _, npc in ipairs(npcFolder:GetChildren()) do
+                    if not isAutoFarming then break end
+
+                    if npc:IsA("Model") and npc:FindFirstChild("ProximityPrompt") then
+                        -- Di chuyển đến NPC
+                        local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        if humanoid and npc:FindFirstChild("PrimaryPart") then
+                            humanoid.CFrame = npc.PrimaryPart.CFrame
+                            task.wait(1)
+                        end
+
+                        -- Tương tác với ProximityPrompt
+                        simulateKeyPress()
+                        task.wait(1.5) -- Thời gian chờ giữa các lần tương tác
+                    end
+                end
+
+                -- Chờ một chút trước khi lặp lại
+                task.wait(2)
+            end
+        end)
+    end
+end)
+
+local OtherSection = Tabs.Main:AddSection("Scripts")
+    OtherSection:AddButton({
+        Title = "Anti AFK",
+        Callback = function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/batusz/main/roblox/__Anti__Afk__Script__", true))()
+    end
+})
+
+
+
+  
+
+-- Addons:
+-- SaveManager (Allows you to have a configuration system)
+-- InterfaceManager (Allows you to have a interface managment system)
+
+-- Hand the library over to our managers
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+
+-- Ignore keys that are used by ThemeManager.
+-- (we dont want configs to save themes, do we?)
+SaveManager:IgnoreThemeSettings()
+
+-- You can add indexes of elements the save manager should ignore
+SaveManager:SetIgnoreIndexes({})
+
+-- use case for doing it this way:
+-- a script hub could have themes in a global folder
+-- and game configs in a separate folder per game
+InterfaceManager:SetFolder("FluentScriptHub")
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+
+Window:SelectTab(1)
+
+Fluent:Notify({
+    Title = "Fluent",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+-- You can use the SaveManager:LoadAutoloadConfig() to load a config
+-- which has been marked to be one that auto loads!
+SaveManager:LoadAutoloadConfig()
