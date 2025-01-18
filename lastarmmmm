@@ -23,7 +23,7 @@ local Options = Fluent.Options
 -- ...rest of existing code...
 local NPCSection = Tabs.Main:AddSection("Auto NPC Farm")
 local VirtualInputManager = game:GetService("VirtualInputManager")
-local npcFolderPath = workspace.GameObjects.ArmWrestling.NinjaSchool.NPC
+local npcFolderPath = workspace.GameObjects.RngNPCs.BlossomVillage.Npc
 local isAutoFarming = false
 local isBossFighting = false
 local function updateProximityPrompts(folder)
