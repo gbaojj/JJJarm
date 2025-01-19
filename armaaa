@@ -43,10 +43,13 @@ local function startThread(threadName, func)
 end
 
 -- Function for Auto NPC Farming
-local function simulateKeyPress()
-    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-    task.wait(0.4)
-    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+local function interactWithNPC()
+    for _ = 1, 10 do -- Gửi sự kiện nhấn nhanh 10 lần để giả lập giữ phím
+        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+        task.wait(0.1) -- Khoảng thời gian giữa mỗi lần nhấn
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+        task.wait(0.1)
+    end
 end
 
 local AutoBeatNPCToggle = Tabs.Main:AddToggle("AutoBeatNPC", {
@@ -66,12 +69,12 @@ AutoBeatNPCToggle:OnChanged(function()
                     local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                     if humanoid then
                         humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                        task.wait(3.6)
-                        simulateKeyPress()
+                        task.wait(0.2) -- Short delay to avoid overlapping actions
+                        interactWithNPC()
                     end
                 end
             end
-            task.wait(1)
+            task.wait(0.5)
         end)
     else
         stopThread("NPCFarm")
