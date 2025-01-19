@@ -57,7 +57,6 @@ end
 local function interactWithNPC()
      VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
     task.wait(0.5)
-    task.wait(1)
     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 end
 
@@ -86,7 +85,7 @@ AutoBeatNPCToggle:OnChanged(function()
                     end
                 end
             end
-            task.wait(2)
+            task.wait(2.5)
         end)
     else
         stopThread("NPCFarm")
