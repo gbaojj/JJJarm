@@ -46,17 +46,35 @@ end
 local function updateProximityPrompts(folder)
     for _, descendant in ipairs(folder:GetDescendants()) do
         if descendant:IsA("ProximityPrompt") then
-            descendant.HoldDuration = 0
+            descendant.HoldDuration = 0 -- Đặt thời gian giữ phím E = 0
             descendant.Style = Enum.ProximityPromptStyle.Default
-            descendant.MaxActivationDistance = 6
+            descendant.MaxActivationDistance = 10 -- Tăng khoảng cách kích hoạt
         end
     end
 end
 
+-- Kết nối sự kiện để xử lý ProximityPrompt mới
+npcPath.DescendantAdded:Connect(function(newDescendant)
+    if newDescendant:IsA("ProximityPrompt") then
+        newDescendant.HoldDuration = 0
+        newDescendant.Style = Enum.ProximityPromptStyle.Default
+        newDescendant.MaxActivationDistance = 10
+    end
+end)
+
+-- Vòng lặp định kỳ để cập nhật ProximityPrompt
+task.spawn(function()
+    while true do
+        updateProximityPrompts(npcPath)
+        task.wait(5) -- Cập nhật mỗi 5 giây
+    end
+end)
+
 -- Function for Auto NPC Farming
 local function interactWithNPC()
-     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-    task.wait(0.5)
+    task.wait(0.1) -- Đợi một chút trước khi gửi phím
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+    task.wait(0.1)
     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 end
 
@@ -69,7 +87,7 @@ AutoBeatNPCToggle:OnChanged(function()
     isAutoFarming = AutoBeatNPCToggle.Value
 
     if isAutoFarming then
-        -- Update Proximity Prompts
+        -- Cập nhật Proximity Prompts
         updateProximityPrompts(npcPath)
 
         startThread("NPCFarm", function()
