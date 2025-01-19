@@ -1,0 +1,103 @@
+-- Optimized Script to Reduce Memory Leak Issues
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+local Window = Fluent:CreateWindow({
+    Title = "Arm ",
+    SubTitle = "by gbao",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true, 
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+local Options = Fluent.Options
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local npcPath = workspace.GameObjects.RngNPCs.BlossomVillage.Npc
+
+local isAutoFarming = false
+local activeThreads = {}
+
+local function stopThread(threadName)
+    if activeThreads[threadName] then
+        activeThreads[threadName] = false
+    end
+end
+
+local function startThread(threadName, func)
+    stopThread(threadName) 
+    activeThreads[threadName] = true
+    task.defer(function()
+        while activeThreads[threadName] do
+            func()
+        end
+    end)
+end
+
+local function isNPCDefeated(npc)
+    return not npc or not npc:IsDescendantOf(workspace)
+end
+
+-- Function to update proximity prompts
+local function updateProximityPrompts(folder)
+    for _, descendant in ipairs(folder:GetDescendants()) do
+        if descendant:IsA("ProximityPrompt") then
+            descendant.HoldDuration = 0
+            descendant.Style = Enum.ProximityPromptStyle.Default
+            descendant.MaxActivationDistance = 6
+        end
+    end
+end
+
+local function interactWithNPC(npc)
+     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+    task.wait(0.4)
+    task.wait(0.88)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+end
+
+local AutoBeatNPCToggle = Tabs.Main:AddToggle("AutoBeatNPC", {
+    Title = "Auto Beat NPC",
+    Default = false
+})
+
+AutoBeatNPCToggle:OnChanged(function()
+    isAutoFarming = AutoBeatNPCToggle.Value
+
+    if isAutoFarming then
+        -- Update Proximity Prompts
+        updateProximityPrompts(npcPath)
+
+        startThread("NPCFarm", function()
+            local npcs = npcPath:GetChildren()
+            for _, npc in ipairs(npcs) do
+                if not isAutoFarming then break end
+                if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
+                    local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    if humanoid then
+                        humanoid.CFrame = npc.Table.PlayerRoot.CFrame
+                        task.wait(0.5)
+                        interactWithNPC(npc)
+                        
+                        local npcId = npc:GetDebugId()
+                        repeat
+                            task.wait(1)
+                        until isNPCDefeated(npc) or not isAutoFarming or (npc:GetDebugId() ~= npcId)
+                        
+                        task.wait(1) 
+                    end
+                end
+            end
+            task.wait(1) 
+        end)
+    else
+        stopThread("NPCFarm")
+    end
+end)
