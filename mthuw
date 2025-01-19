@@ -1,4 +1,4 @@
--- Optimized Script to Reduce Memory Leak Issues
+--- Optimized Script to Reduce Memory Leak Issues
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -33,7 +33,7 @@ local function stopThread(threadName)
 end
 
 local function startThread(threadName, func)
-    stopThread(threadName) -- Stop any existing thread with the same name
+    stopThread(threadName)
     activeThreads[threadName] = true
     task.defer(function()
         while activeThreads[threadName] do
@@ -53,13 +53,14 @@ local function updateProximityPrompts(folder)
     end
 end
 
+-- Function to check if NPC is defeated
 local function isNPCDefeated(npc)
-    return not npc or not npc:IsDescendantOf(workspace)
+    return not npc:FindFirstChild("Table") or not npc.Table:FindFirstChild("PlayerRoot")
 end
 
 -- Function for Auto NPC Farming
 local function interactWithNPC()
-     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
     task.wait(0.4)
     task.wait(0.88)
     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
@@ -74,7 +75,7 @@ AutoBeatNPCToggle:OnChanged(function()
     isAutoFarming = AutoBeatNPCToggle.Value
 
     if isAutoFarming then
-        -- Update Proximity Prompts
+        -- Cập nhật ProximityPrompts trước khi chạy Auto Farm
         updateProximityPrompts(npcPath)
 
         startThread("NPCFarm", function()
@@ -85,12 +86,11 @@ AutoBeatNPCToggle:OnChanged(function()
                     local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                     if humanoid then
                         humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                        interactWithNPC(npc)
+                        interactWithNPC()
                         
-                        local npcId = npc:GetDebugId()
                         repeat
-                            task.wait()  -- Kiểm tra liên tục không delay
-                        until isNPCDefeated(npc) or not isAutoFarming or (npc:GetDebugId() ~= npcId)
+                            task.wait(0.1) -- Thêm delay nhẹ để giảm lag
+                        until isNPCDefeated(npc) or not isAutoFarming
                     end
                 end
             end
@@ -99,6 +99,7 @@ AutoBeatNPCToggle:OnChanged(function()
         stopThread("NPCFarm")
     end
 end)
+
 
 
 -- Function for Auto Buying
