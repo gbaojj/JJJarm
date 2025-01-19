@@ -56,8 +56,8 @@ end
 -- Function for Auto NPC Farming
 local function interactWithNPC()
      VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-    task.wait(0.4)
-    task.wait(0.88)
+    task.wait(0.5)
+    task.wait(1)
     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 end
 
@@ -81,12 +81,12 @@ AutoBeatNPCToggle:OnChanged(function()
                     local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                     if humanoid then
                         humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                        task.wait(0.8) -- Short delay to avoid overlapping actions
+                        task.wait(1) -- Short delay to avoid overlapping actions
                         interactWithNPC()
                     end
                 end
             end
-            task.wait(1.5)
+            task.wait(2)
         end)
     else
         stopThread("NPCFarm")
@@ -167,14 +167,6 @@ AutoClaimRewardToggle:OnChanged(function()
     end
 end)
 
--- Anti-AFK Script
-local OtherSection = Tabs.Main:AddSection("Scripts")
-OtherSection:AddButton({
-    Title = "Anti AFK",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/batusz/main/roblox/__Anti__Afk__Script__", true))()
-    end
-})
 
 -- SaveManager and InterfaceManager Setup
 SaveManager:SetLibrary(Fluent)
