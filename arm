@@ -44,12 +44,10 @@ end
 
 -- Function for Auto NPC Farming
 local function interactWithNPC()
-    for _ = 1, 10 do -- Gửi sự kiện nhấn nhanh 10 lần để giả lập giữ phím
-        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-        task.wait(0.1) -- Khoảng thời gian giữa mỗi lần nhấn
-        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
-        task.wait(0.1)
-    end
+     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+    task.wait(0.4)
+    task.wait(0.88)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 end
 
 local AutoBeatNPCToggle = Tabs.Main:AddToggle("AutoBeatNPC", {
@@ -155,14 +153,6 @@ AutoClaimRewardToggle:OnChanged(function()
     end
 end)
 
--- Anti-AFK Script
-local OtherSection = Tabs.Main:AddSection("Scripts")
-OtherSection:AddButton({
-    Title = "Anti AFK",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/batusz/main/roblox/__Anti__Afk__Script__", true))()
-    end
-})
 
 -- SaveManager and InterfaceManager Setup
 SaveManager:SetLibrary(Fluent)
