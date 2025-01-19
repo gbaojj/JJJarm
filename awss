@@ -106,12 +106,12 @@ AutoBeatNPCToggle:OnChanged(function()
                             local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                             if humanoid then
                                 humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                                wait(3.3)
+                                wait(3.6)
                             end
                         end
                     end
                 else
-                    wait(1.7)
+                    wait(2.1)
                     wait(1)
                 end
             end
@@ -177,7 +177,7 @@ AutoBuyToggle:OnChanged(function()
                                 [2] = number
                             }
                             game:GetService("ReplicatedStorage").Packages.Knit.Services.LimitedMerchantService.RF.BuyItem:InvokeServer(unpack(args))
-                            wait(1)
+                            wait(3)
                         end
                     end
                 end
