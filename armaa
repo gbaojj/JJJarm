@@ -1,8 +1,7 @@
+-- Optimized Script to Reduce Memory Leak Issues
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-
-game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnAutoFight:InvokeServer()
 
 local Window = Fluent:CreateWindow({
     Title = "Arm ",
@@ -11,7 +10,8 @@ local Window = Fluent:CreateWindow({
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true, 
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl })
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
 
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
@@ -19,30 +19,33 @@ local Tabs = {
 }
 
 local Options = Fluent.Options
-
--- ...rest of existing code...
-local NPCSection = Tabs.Main:AddSection("Auto NPC Farm")
 local VirtualInputManager = game:GetService("VirtualInputManager")
-local npcFolderPath = workspace.GameObjects.ArmWrestling.BlossomVillage.NPC
-local npcPath = workspace.GameObjects.RngNPCs.BlossomVillage.Npc  -- Đã thay đổi từ snowstormPath
+local npcPath = workspace.GameObjects.RngNPCs.BlossomVillage.Npc
 
 local isAutoFarming = false
-local isBossFighting = false
+local activeThreads = {}
 
-local function updateProximityPrompts(folder)
-    for _, descendant in ipairs(folder:GetDescendants()) do
-        if descendant:IsA("ProximityPrompt") then
-            descendant.HoldDuration = 0
-            descendant.Style = Enum.ProximityPromptStyle.Default
-            descendant.MaxActivationDistance = 6
-        end
+-- Helper to manage threads
+local function stopThread(threadName)
+    if activeThreads[threadName] then
+        activeThreads[threadName] = false
     end
 end
 
+local function startThread(threadName, func)
+    stopThread(threadName) -- Stop any existing thread with the same name
+    activeThreads[threadName] = true
+    task.defer(function()
+        while activeThreads[threadName] do
+            func()
+        end
+    end)
+end
+
+-- Function for Auto NPC Farming
 local function simulateKeyPress()
     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-    task.wait(0.5)
-    task.wait(1)
+    task.wait(0.4)
     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 end
 
@@ -55,114 +58,119 @@ AutoBeatNPCToggle:OnChanged(function()
     isAutoFarming = AutoBeatNPCToggle.Value
 
     if isAutoFarming then
-        -- Start teleport check
-        spawn(function()
-            while true do
-                if not AutoBeatNPCToggle.Value then break end
-                local currentTime = tick()
-                local timeSinceLastRemote = currentTime - lastRemoteInvokeTime
-                
-                -- Only teleport if remote hasn't been invoked in 20 seconds
-                if timeSinceLastRemote >= 20 then
-                    print("No remote invoke detected for 20 seconds, triggering teleport")
-                    handleTeleport()
-                end
-                wait(15)
-            end
-        end)
-        
-        -- Start proximity prompt updates
-        spawn(function()
-            while true do
-                if not AutoBeatNPCToggle.Value then break end
-                updateProximityPrompts(npcPath)  -- Đã thay đổi từ snowstormPath
-                wait(1)
-            end
-        end)
-        
-        -- Start key simulation
-        spawn(function()
-            while true do
-                if not AutoBeatNPCToggle.Value then break end
-                local npcs = npcPath:GetChildren()  -- Đã thay đổi từ snowstormPath
-                if #npcs > 0 then
-                    simulateKeyPress()
-                end
-                task.wait(1.2)
-            end
-        end)
-        
-        -- Main NPC farming loop
-local TweenService = game:GetService("TweenService")
-
-spawn(function()
-    while true do
-        if not AutoBeatNPCToggle.Value then break end
-        local npcs = npcPath:GetChildren()  -- Đã thay đổi từ snowstormPath
-        if #npcs > 0 then
+        startThread("NPCFarm", function()
+            local npcs = npcPath:GetChildren()
             for _, npc in ipairs(npcs) do
-                if not AutoBeatNPCToggle.Value then break end
-                
-                if npc:IsA("Model") and npc:FindFirstChild("Table") and 
-                   npc.Table:FindFirstChild("PlayerRoot") then
-                    local humanoidRootPart = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                    if humanoidRootPart then
-                        -- Tạo một Tween để di chuyển đến NPC
-                        local goal = {CFrame = npc.Table.PlayerRoot.CFrame}
-                        local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-                        local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
-                        tween:Play()
-                        tween.Completed:Wait()  -- Đợi cho đến khi tween hoàn thành
+                if not isAutoFarming then break end
+                if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
+                    local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    if humanoid then
+                        humanoid.CFrame = npc.Table.PlayerRoot.CFrame
+                        task.wait(3.6)
+                        simulateKeyPress()
                     end
                 end
             end
-        else
-            wait(2.5)  -- Đợi một thời gian ngắn trước khi kiểm tra lại NPC
-        end
+            task.wait(1)
+        end)
+    else
+        stopThread("NPCFarm")
     end
 end)
 
+-- Function for Auto Buying
+local AutoBuyToggle = Tabs.Main:AddToggle("AutoBuyToggle", {
+    Title = "Auto Buy (Selected Slots)",
+    Default = false
+})
 
+local BlackMarketDropdown = Tabs.Main:AddDropdown("BlackMarketDropdown", {
+    Title = "Select Merchant Slot(s)",
+    Values = {1, 2, 3, 4, 5},
+    Multi = true,
+    Default = {}
+})
 
+AutoBuyToggle:OnChanged(function()
+    if AutoBuyToggle.Value then
+        startThread("AutoBuy", function()
+            for i = 1, 3 do
+                for number, isSelected in pairs(BlackMarketDropdown.Value) do
+                    if not AutoBuyToggle.Value then break end
+                    if isSelected then
+                        local args = {
+                            [1] = "Blossom Merchant",
+                            [2] = number
+                        }
+                        game:GetService("ReplicatedStorage").Packages.Knit.Services.LimitedMerchantService.RF.BuyItem:InvokeServer(unpack(args))
+                        task.wait(3)
+                    end
+                end
+            end
+            task.wait(90) -- Wait 90 seconds before next cycle
+        end)
+    else
+        stopThread("AutoBuy")
+    end
+end)
 
+-- Function for Auto Spin
+local AutoSpinToggle = Tabs.Main:AddToggle("AutoSpin", {
+    Title = "Auto Spin",
+    Default = false
+})
 
+AutoSpinToggle:OnChanged(function()
+    if AutoSpinToggle.Value then
+        startThread("AutoSpin", function()
+            local args = {
+                [1] = "Ninja Fortune",
+                [2] = "x25"
+            }
+            game:GetService("ReplicatedStorage").Packages.Knit.Services.SpinnerService.RF.Spin:InvokeServer(unpack(args))
+            task.wait(3)
+        end)
+    else
+        stopThread("AutoSpin")
+    end
+end)
+
+-- Function for Auto Claim Daily Reward
+local AutoClaimRewardToggle = Tabs.Main:AddToggle("AutoClaimReward", {
+    Title = "Auto Claim Daily Reward",
+    Default = false
+})
+
+AutoClaimRewardToggle:OnChanged(function()
+    if AutoClaimRewardToggle.Value then
+        startThread("AutoClaimReward", function()
+            game:GetService("ReplicatedStorage").Packages.Knit.Services.DailyRewardService.RE.onClaimReward:FireServer()
+            task.wait(1800) -- Wait 30 minutes before claiming again
+        end)
+    else
+        stopThread("AutoClaimReward")
+    end
+end)
+
+-- Anti-AFK Script
 local OtherSection = Tabs.Main:AddSection("Scripts")
-    OtherSection:AddButton({
-        Title = "Anti AFK",
-        Callback = function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/batusz/main/roblox/__Anti__Afk__Script__", true))()
+OtherSection:AddButton({
+    Title = "Anti AFK",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/batusz/main/roblox/__Anti__Afk__Script__", true))()
     end
 })
 
-
-
-  
-
--- Addons:
--- SaveManager (Allows you to have a configuration system)
--- InterfaceManager (Allows you to have a interface managment system)
-
--- Hand the library over to our managers
+-- SaveManager and InterfaceManager Setup
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
-
--- Ignore keys that are used by ThemeManager.
--- (we dont want configs to save themes, do we?)
 SaveManager:IgnoreThemeSettings()
-
--- You can add indexes of elements the save manager should ignore
 SaveManager:SetIgnoreIndexes({})
-
--- use case for doing it this way:
--- a script hub could have themes in a global folder
--- and game configs in a separate folder per game
 InterfaceManager:SetFolder("FluentScriptHub")
 SaveManager:SetFolder("FluentScriptHub/specific-game")
 
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
-
-
 Window:SelectTab(1)
 
 Fluent:Notify({
@@ -171,6 +179,5 @@ Fluent:Notify({
     Duration = 8
 })
 
--- You can use the SaveManager:LoadAutoloadConfig() to load a config
--- which has been marked to be one that auto loads!
+-- Load Auto-Config
 SaveManager:LoadAutoloadConfig()
