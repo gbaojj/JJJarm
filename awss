@@ -189,6 +189,27 @@ end)
 
 local WheelSection = Tabs.Main:AddSection("Wheel")
 
+local AutoClaimRewardToggle = Tabs.Main:AddToggle("AutoClaimReward", {
+    Title = "Auto Claim Daily Reward",
+    Default = false
+})
+
+AutoClaimRewardToggle:OnChanged(function()
+    if AutoClaimRewardToggle.Value then
+        spawn(function()
+            while true do
+                if not AutoClaimRewardToggle.Value then break end
+                
+                -- Gửi yêu cầu nhận daily reward
+                game:GetService("ReplicatedStorage").Packages.Knit.Services.DailyRewardService.RE.onClaimReward:FireServer()
+                
+                -- Thời gian chờ trước lần nhận tiếp theo (24 giờ = 86400 giây)
+                task.wait(1800) 
+            end
+        end)
+    end
+end)
+
 -- Auto Spin Toggle
 local AutoSpinToggle = Tabs.Main:AddToggle("AutoSpin", {
     Title = "Auto Spin",
