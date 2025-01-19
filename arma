@@ -42,6 +42,17 @@ local function startThread(threadName, func)
     end)
 end
 
+-- Function to update proximity prompts
+local function updateProximityPrompts(folder)
+    for _, descendant in ipairs(folder:GetDescendants()) do
+        if descendant:IsA("ProximityPrompt") then
+            descendant.HoldDuration = 0
+            descendant.Style = Enum.ProximityPromptStyle.Default
+            descendant.MaxActivationDistance = 6
+        end
+    end
+end
+
 -- Function for Auto NPC Farming
 local function interactWithNPC()
      VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
@@ -59,6 +70,9 @@ AutoBeatNPCToggle:OnChanged(function()
     isAutoFarming = AutoBeatNPCToggle.Value
 
     if isAutoFarming then
+        -- Update Proximity Prompts
+        updateProximityPrompts(npcPath)
+
         startThread("NPCFarm", function()
             local npcs = npcPath:GetChildren()
             for _, npc in ipairs(npcs) do
@@ -67,12 +81,12 @@ AutoBeatNPCToggle:OnChanged(function()
                     local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                     if humanoid then
                         humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                        task.wait(0.2) -- Short delay to avoid overlapping actions
+                        task.wait(0.8) -- Short delay to avoid overlapping actions
                         interactWithNPC()
                     end
                 end
             end
-            task.wait(0.5)
+            task.wait(1.5)
         end)
     else
         stopThread("NPCFarm")
@@ -104,7 +118,7 @@ AutoBuyToggle:OnChanged(function()
                             [2] = number
                         }
                         game:GetService("ReplicatedStorage").Packages.Knit.Services.LimitedMerchantService.RF.BuyItem:InvokeServer(unpack(args))
-                        task.wait(3)
+                        task.wait(10)
                     end
                 end
             end
@@ -153,6 +167,14 @@ AutoClaimRewardToggle:OnChanged(function()
     end
 end)
 
+-- Anti-AFK Script
+local OtherSection = Tabs.Main:AddSection("Scripts")
+OtherSection:AddButton({
+    Title = "Anti AFK",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/batusz/main/roblox/__Anti__Afk__Script__", true))()
+    end
+})
 
 -- SaveManager and InterfaceManager Setup
 SaveManager:SetLibrary(Fluent)
