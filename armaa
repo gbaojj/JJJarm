@@ -89,7 +89,7 @@ AutoBeatNPCToggle:OnChanged(function()
                     end
                 end
             end
-            task.wait(2.5)
+            task.wait(3.5)
         end)
     else
         stopThread("NPCFarm")
