@@ -102,9 +102,8 @@ AutoBeatNPCToggle:OnChanged(function()
                     local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                     
                     if humanoid then
-                        wait(2) -- Chờ trước khi di chuyển nhân vật
+                        wait(2.5) -- Chờ trước khi di chuyển nhân vật
                         humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                        wait(2) -- Chờ trước khi tương tác với NPC
                         interactWithNPC()
                     end
                 end
