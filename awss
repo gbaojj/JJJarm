@@ -84,12 +84,13 @@ AutoBeatNPCToggle:OnChanged(function()
                     local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                     if humanoid then   
                         humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                        task.wait(2) -- Short delay to avoid overlapping actions
+                        task.wait(1) -- Short delay to avoid overlapping actions
                         interactWithNPC()
+                        task.wait(3)
                     end
                 end
             end
-            task.wait(1.5)
+            task.wait(4.5)
         end)
     else
         stopThread("NPCFarm")
