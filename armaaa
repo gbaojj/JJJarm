@@ -83,8 +83,9 @@ AutoBeatNPCToggle:OnChanged(function()
                 if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
                     local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                     if humanoid then
+                        task.wait(2) -- Short delay to avoid overlapping actio    
                         humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                        task.wait(2) -- Short delay to avoid overlapping actions
+                        task.wait(0.4) -- Short delay to avoid overlapping actions
                         interactWithNPC()
                     end
                 end
