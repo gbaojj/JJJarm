@@ -73,28 +73,37 @@ AutoBeatNPCToggle:OnChanged(function()
     isAutoFarming = AutoBeatNPCToggle.Value
 
     if isAutoFarming then
-        task.spawn(function()
-            while isAutoFarming do
-                updateProximityPrompts(npcPath)
-                task.wait(3.5) -- Cập nhật mỗi 3 giây
+        -- Cập nhật ProximityPrompt cho tất cả các NPC hiện tại trong npcPath
+        for _, npc in ipairs(npcPath:GetChildren()) do
+            if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
+                updateProximityPrompts(npc) -- Cập nhật ProximityPrompt cho NPC
+            end
+        end
+
+        -- Lắng nghe sự kiện ChildAdded để cập nhật các NPC mới
+        npcPath.ChildAdded:Connect(function(child)
+            if child:IsA("Model") and child:FindFirstChild("Table") and child.Table:FindFirstChild("PlayerRoot") then
+                updateProximityPrompts(child) -- Cập nhật ProximityPrompt cho NPC mới
             end
         end)
 
+        -- Tiến hành tương tác với NPC
         startThread("NPCFarm", function()
-            local npcs = npcPath:GetChildren()
-            for _, npc in ipairs(npcs) do
-                if not isAutoFarming then break end
-                if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
-                    local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                    if humanoid then   
-                        humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                        task.wait(0.5) -- Short delay to avoid overlapping actions
-                        interactWithNPC()
-                        task.wait(3.5)
+            while isAutoFarming do
+                for _, npc in ipairs(npcPath:GetChildren()) do
+                    if not isAutoFarming then break end
+                    if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
+                        local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        if humanoid then   
+                            humanoid.CFrame = npc.Table.PlayerRoot.CFrame
+                            task.wait(0.5) -- Short delay to avoid overlapping actions
+                            interactWithNPC()
+                            task.wait(3.5)
+                        end
                     end
                 end
+                task.wait(1)
             end
-            task.wait(2)
         end)
     else
         stopThread("NPCFarm")
