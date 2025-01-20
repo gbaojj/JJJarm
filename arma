@@ -73,8 +73,12 @@ AutoBeatNPCToggle:OnChanged(function()
     isAutoFarming = AutoBeatNPCToggle.Value
 
     if isAutoFarming then
-        -- Cập nhật Proximity Prompts
-        updateProximityPrompts(npcPath)
+        task.spawn(function()
+            while isAutoFarming do
+                updateProximityPrompts(npcPath)
+                task.wait(3) -- Cập nhật mỗi 3 giây
+            end
+        end)
 
         startThread("NPCFarm", function()
             local npcs = npcPath:GetChildren()
@@ -90,7 +94,7 @@ AutoBeatNPCToggle:OnChanged(function()
                     end
                 end
             end
-            task.wait(3)
+            task.wait(2)
         end)
     else
         stopThread("NPCFarm")
