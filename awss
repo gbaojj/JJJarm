@@ -50,27 +50,11 @@ local function updateProximityPrompts(folder)
         if descendant:IsA("ProximityPrompt") then
             descendant.HoldDuration = 0 -- Đặt thời gian giữ phím E = 0
             descendant.Style = Enum.ProximityPromptStyle.Default
-            descendant.MaxActivationDistance = 10 -- Tăng khoảng cách kích hoạt
+            descendant.MaxActivationDistance = 6 -- Tăng khoảng cách kích hoạt
         end
     end
 end
 
--- Kết nối sự kiện để xử lý ProximityPrompt mới
-npcPath.DescendantAdded:Connect(function(newDescendant)
-    if newDescendant:IsA("ProximityPrompt") then
-        newDescendant.HoldDuration = 0
-        newDescendant.Style = Enum.ProximityPromptStyle.Default
-        newDescendant.MaxActivationDistance = 10
-    end
-end)
-
--- Vòng lặp định kỳ để cập nhật ProximityPrompt
-task.spawn(function()
-    while true do
-        updateProximityPrompts(npcPath)
-        task.wait(5) -- Cập nhật mỗi 5 giây
-    end
-end)
 
 -- Function for Auto NPC Farming
 local function interactWithNPC()
@@ -91,31 +75,26 @@ AutoBeatNPCToggle:OnChanged(function()
     if isAutoFarming then
         -- Cập nhật Proximity Prompts
         updateProximityPrompts(npcPath)
-        
+
         startThread("NPCFarm", function()
             local npcs = npcPath:GetChildren()
-            
             for _, npc in ipairs(npcs) do
                 if not isAutoFarming then break end
-                
                 if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
                     local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                    
-                    if humanoid then
-                        wait(2.5) -- Chờ trước khi di chuyển nhân vật
+                    if humanoid then   
                         humanoid.CFrame = npc.Table.PlayerRoot.CFrame
+                        task.wait(2) -- Short delay to avoid overlapping actions
                         interactWithNPC()
                     end
                 end
-                wait(2) -- Chờ giữa mỗi NPC
             end
+            task.wait(1.5)
         end)
     else
         stopThread("NPCFarm")
     end
 end)
-
-
 
 -- Function for Auto Buying
 local AutoBuyToggle = Tabs.Main:AddToggle("AutoBuyToggle", {
