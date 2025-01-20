@@ -73,24 +73,18 @@ AutoBeatNPCToggle:OnChanged(function()
     isAutoFarming = AutoBeatNPCToggle.Value
 
     if isAutoFarming then
-        -- Cập nhật Proximity Prompts
-        updateProximityPrompts(npcPath)
-
-        startThread("NPCFarm", function()
-            local npcs = npcPath:GetChildren()
-            for _, npc in ipairs(npcs) do
-                if not isAutoFarming then break end
-                if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
-                    local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                    if humanoid then   
-                        humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                        task.wait(0.5) -- Short delay to avoid overlapping actions
-                        interactWithNPC()
-                        task.wait(3)
-                    end
+        -- Thay vòng lặp bằng sự kiện ChildAdded
+        npcPath.ChildAdded:Connect(function(child)
+            if child:IsA("Model") and child:FindFirstChild("Table") and child.Table:FindFirstChild("PlayerRoot") then
+                updateProximityPrompts(child) -- Cập nhật ProximityPrompt cho NPC mới
+                local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if humanoid then   
+                    humanoid.CFrame = child.Table.PlayerRoot.CFrame
+                    task.wait(0.5) -- Short delay to avoid overlapping actions
+                    interactWithNPC()
+                    task.wait(3.5)
                 end
             end
-            task.wait(2)
         end)
     else
         stopThread("NPCFarm")
