@@ -91,26 +91,35 @@ AutoBeatNPCToggle:OnChanged(function()
     if isAutoFarming then
         -- Cập nhật Proximity Prompts
         updateProximityPrompts(npcPath)
+        wait(2) -- Chờ 2 giây trước khi tiếp tục
 
         startThread("NPCFarm", function()
             local npcs = npcPath:GetChildren()
+            wait(2) -- Chờ 2 giây trước khi duyệt qua NPCs
+            
             for _, npc in ipairs(npcs) do
                 if not isAutoFarming then break end
+                wait(2) -- Chờ 2 giây trước khi kiểm tra từng NPC
+                
                 if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
                     local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    wait(2) -- Chờ 2 giây trước khi di chuyển nhân vật
+                    
                     if humanoid then
                         humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                        task.wait(1) -- Short delay to avoid overlapping actions
+                        wait(2) -- Chờ 2 giây trước khi tương tác với NPC
                         interactWithNPC()
                     end
                 end
             end
-            task.wait(1)
+            wait(2) -- Chờ 2 giây sau khi hoàn thành vòng lặp
         end)
     else
+        wait(2) -- Chờ 2 giây trước khi dừng luồng
         stopThread("NPCFarm")
     end
 end)
+
 
 -- Function for Auto Buying
 local AutoBuyToggle = Tabs.Main:AddToggle("AutoBuyToggle", {
