@@ -86,11 +86,11 @@ AutoBeatNPCToggle:OnChanged(function()
                         humanoid.CFrame = npc.Table.PlayerRoot.CFrame
                         task.wait(0.5) -- Short delay to avoid overlapping actions
                         interactWithNPC()
-                        task.wait(3)
+                        task.wait(3.5)
                     end
                 end
             end
-            task.wait(1)
+            task.wait(1.5)
         end)
     else
         stopThread("NPCFarm")
