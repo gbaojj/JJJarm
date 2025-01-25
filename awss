@@ -222,7 +222,6 @@ AutoBuyBoost:OnChanged(function()
 end)
 
 
-
 -- Thêm Dropdown để chọn tên trứng
 local EggDropdown = Tabs.Egg:AddDropdown("EggDropdown", {
     Title = "Chọn Tên Trứng",
@@ -237,32 +236,33 @@ local AutoEgg = Tabs.Egg:AddToggle("AutoEGG", {
     Default = false
 })
 
+-- Biến để kiểm soát vòng lặp
+local autoEggLoop = false
+
 AutoEgg:OnChanged(function()
-    if AutoEgg.Value then
-        startThread("AutoEGG", function()
-            while AutoEgg.Value do
-                -- Lấy giá trị trứng được chọn từ Dropdown
-                local selectedEgg = EggDropdown.Value or "Ultimate" -- Mặc định là "Lava" nếu không có giá trị
+    autoEggLoop = AutoEgg.Value -- Bật hoặc tắt vòng lặp dựa trên giá trị Toggle
 
-                local args = {
-                    [1] = selectedEgg, -- Tên trứng được chọn
-                    [2] = nil, -- Placeholder for unknown argument
-                    [3] = nil, -- Triple Egg (Gamepass)
-                    [4] = false, -- Auto Egg (Gamepass)
-                    [5] = nil, -- Placeholder for unknown argument
-                    [6] = true -- Max Egg
-                }
+    if autoEggLoop then
+        while autoEggLoop do
+            -- Lấy giá trị trứng được chọn từ Dropdown
+            local selectedEgg = EggDropdown.Value or "Ultimate" -- Mặc định là "Ultimate" nếu không có giá trị
 
-                -- Gửi yêu cầu đến máy chủ để mở trứng
-                game:GetService("ReplicatedStorage").Packages.Knit.Services.EggService.RF.purchaseEgg:InvokeServer(unpack(args))
-                task.wait(1) -- Chờ 3 giây trước khi lặp lại
-            end
-        end)
-    else
-        stopThread("AutoEGG") -- Dừng luồng AutoEGG
+            local args = {
+                [1] = selectedEgg, -- Tên trứng được chọn
+                [2] = nil, -- Placeholder for unknown argument
+                [3] = nil, -- Triple Egg (Gamepass)
+                [4] = false, -- Auto Egg (Gamepass)
+                [5] = nil, -- Placeholder for unknown argument
+                [6] = true -- Max Egg
+            }
+
+            -- Gửi yêu cầu đến máy chủ để mở trứng
+            game:GetService("ReplicatedStorage").Packages.Knit.Services.EggService.RF.purchaseEgg:InvokeServer(unpack(args))
+
+            task.wait(1) -- Chờ 1 giây trước khi lặp lại
+        end
     end
 end)
-
 
 -- SaveManager and InterfaceManager Setup
 SaveManager:SetLibrary(Fluent)
