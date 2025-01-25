@@ -244,11 +244,8 @@ AutoEgg:OnChanged(function()
 
                 local args = {
                     [1] = selectedEgg, -- Tên trứng được chọn
-                    [2] = nil, -- ID (không bắt buộc)
-                    [3] = nil, -- Trứng x3 (cần gamepass)
-                    [4] = false, -- Tự động Trứng (cần gamepass)
-                    [5] = nil, -- Không biết
-                    [6] = true -- Mở tối đa trứng
+                    [6] = true,
+                    [4] = false
                 }
 
                 -- Gửi yêu cầu đến máy chủ để mở trứng
