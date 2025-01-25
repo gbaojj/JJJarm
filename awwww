@@ -187,12 +187,11 @@ AutoClaimRewardToggle:OnChanged(function()
 end)
 
 -- Thêm Dropdown để chọn loại Boost
--- Thêm Dropdown để chọn nhiều loại Boost
 local BoostDropdown = Tabs.Egg:AddDropdown("BoostDropdown", {
     Title = "Chọn Loại Boost",
     Values = {"Luck", "Training", "Candy"}, -- Danh sách các Boost có thể mua
-    Multi = true, -- Cho phép chọn nhiều loại Boost
-    Default = {"Luck"} -- Giá trị mặc định
+    Multi = false, -- Chỉ được chọn một loại Boost
+    Default = "Luck" -- Giá trị mặc định
 })
 
 -- Thêm nút chuyển đổi (toggle) Auto Buy Boost
@@ -201,30 +200,27 @@ local AutoBuyBoost = Tabs.Egg:AddToggle("AutoBuyBoost", {
     Default = false
 })
 
--- Xử lý logic Auto Buy Boost
 AutoBuyBoost:OnChanged(function()
     if AutoBuyBoost.Value then
         startThread("AutoBuyBoost", function()
             while AutoBuyBoost.Value do
-                -- Lấy danh sách các loại Boost được chọn từ Dropdown
-                local selectedBoosts = BoostDropdown.Value or {}
+                -- Lấy loại Boost được chọn từ Dropdown
+                local selectedBoost = BoostDropdown.Value or "Luck" -- Mặc định là "Luck" nếu không có giá trị
 
-                for _, boost in ipairs(selectedBoosts) do
-                    -- Gửi yêu cầu mua từng loại Boost
-                    local args = {
-                        [1] = boost -- Loại Boost được chọn
-                    }
-                    game:GetService("ReplicatedStorage").Packages.Knit.Services.ChiUpgradeService.RF.BuyBoost:InvokeServer(unpack(args))
-                    task.wait(1) -- Đợi một chút trước khi tiếp tục
-                end
+                local args = {
+                    [1] = selectedBoost -- Loại Boost được chọn
+                }
 
-                task.wait(30) -- Chờ 30 giây trước khi mua lại toàn bộ Boosts
+                -- Gửi yêu cầu đến máy chủ để mua Boost
+                game:GetService("ReplicatedStorage").Packages.Knit.Services.ChiUpgradeService.RF.BuyBoost:InvokeServer(unpack(args))
+                task.wait(30) -- Chờ 5 giây trước khi mua lại
             end
         end)
     else
         stopThread("AutoBuyBoost") -- Dừng luồng AutoBuyBoost
     end
 end)
+
 
 
 -- Thêm Dropdown để chọn tên trứng
