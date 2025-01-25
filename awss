@@ -202,7 +202,7 @@ AutoEgg:OnChanged(function()
         startThread("AutoEGG", function()
             while AutoEgg.Value do
                 -- Lấy giá trị trứng được chọn từ Dropdown
-                local selectedEgg = EggDropdown.Value or "UltimateUltimate" -- Mặc định là "Lava" nếu không có giá trị
+                local selectedEgg = EggDropdown.Value or "Ultimate" -- Mặc định là "Lava" nếu không có giá trị
 
                 local args = {
                     [1] = selectedEgg, -- Tên trứng được chọn
