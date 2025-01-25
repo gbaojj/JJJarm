@@ -17,8 +17,9 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
-    Egg = Window:AddTab({ Title = "Egg", Icon = "" })
+    Egg = Window:AddTab({ Title = "Egg", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    
 }
 
 local Options = Fluent.Options
