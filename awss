@@ -190,11 +190,11 @@ end)
 local BoostDropdown = Tabs.Egg:AddDropdown("BoostDropdown", {
     Title = "Chọn Loại Boost",
     Values = {"Luck", "Training", "Candy"}, -- Danh sách các Boost có thể mua
-    Multi = true, -- Cho phép chọn nhiều loại Boost
-    Default = {"Luck"} -- Giá trị mặc định
+    Multi = false, -- Chỉ được chọn một loại Boost
+    Default = "Luck" -- Giá trị mặc định
 })
 
--- Chỉnh sửa nút chuyển đổi (toggle) Auto Buy Boost
+-- Thêm nút chuyển đổi (toggle) Auto Buy Boost
 local AutoBuyBoost = Tabs.Egg:AddToggle("AutoBuyBoost", {
     Title = "Auto Mua Boost",
     Default = false
@@ -204,27 +204,22 @@ AutoBuyBoost:OnChanged(function()
     if AutoBuyBoost.Value then
         startThread("AutoBuyBoost", function()
             while AutoBuyBoost.Value do
-                -- Lấy danh sách Boost được chọn từ Dropdown
-                for _, selectedBoost in ipairs(BoostDropdown.Value) do
-                    if not AutoBuyBoost.Value then break end
+                -- Lấy loại Boost được chọn từ Dropdown
+                local selectedBoost = BoostDropdown.Value or "Luck" -- Mặc định là "Luck" nếu không có giá trị
 
-                    local args = {
-                        [1] = selectedBoost -- Loại Boost được chọn
-                    }
+                local args = {
+                    [1] = selectedBoost -- Loại Boost được chọn
+                }
 
-                    -- Gửi yêu cầu đến máy chủ để mua Boost
-                    game:GetService("ReplicatedStorage").Packages.Knit.Services.ChiUpgradeService.RF.BuyBoost:InvokeServer(unpack(args))
-                    task.wait(5) -- Chờ 5 giây trước khi mua loại Boost tiếp theo
-                end
-
-                task.wait(30) -- Chờ 30 giây trước khi vòng lặp tiếp tục
+                -- Gửi yêu cầu đến máy chủ để mua Boost
+                game:GetService("ReplicatedStorage").Packages.Knit.Services.ChiUpgradeService.RF.BuyBoost:InvokeServer(unpack(args))
+                task.wait(30) -- Chờ 5 giây trước khi mua lại
             end
         end)
     else
         stopThread("AutoBuyBoost") -- Dừng luồng AutoBuyBoost
     end
 end)
-
 
 
 -- Thêm Dropdown để chọn tên trứng
