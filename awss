@@ -225,7 +225,7 @@ end)
 -- Thêm Dropdown để chọn tên trứng
 local EggDropdown = Tabs.Egg:AddDropdown("EggDropdown", {
     Title = "Chọn Tên Trứng",
-    Values = {"Ultimate", "Mutant", "Samurai"}, -- Danh sách các trứng có thể mở
+    Values = {"Ultimate", "Mutant", "Samurai", "Herbivore", "Wormhole"}, -- Danh sách các trứng có thể mở
     Multi = false, -- Chỉ được chọn một loại trứng
     Default = "Ultimate" -- Giá trị mặc định
 })
