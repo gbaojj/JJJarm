@@ -186,15 +186,15 @@ AutoClaimRewardToggle:OnChanged(function()
     end
 end)
 
--- Thêm Dropdown để chọn loại Boost
+-- Chỉnh sửa Dropdown để chọn loại Boost (multi)
 local BoostDropdown = Tabs.Egg:AddDropdown("BoostDropdown", {
     Title = "Chọn Loại Boost",
     Values = {"Luck", "Training", "Candy"}, -- Danh sách các Boost có thể mua
-    Multi = false, -- Chỉ được chọn một loại Boost
-    Default = "Luck" -- Giá trị mặc định
+    Multi = true, -- Cho phép chọn nhiều loại Boost
+    Default = {"Luck"} -- Giá trị mặc định
 })
 
--- Thêm nút chuyển đổi (toggle) Auto Buy Boost
+-- Chỉnh sửa nút chuyển đổi (toggle) Auto Buy Boost
 local AutoBuyBoost = Tabs.Egg:AddToggle("AutoBuyBoost", {
     Title = "Auto Mua Boost",
     Default = false
@@ -204,22 +204,27 @@ AutoBuyBoost:OnChanged(function()
     if AutoBuyBoost.Value then
         startThread("AutoBuyBoost", function()
             while AutoBuyBoost.Value do
-                -- Lấy loại Boost được chọn từ Dropdown
-                local selectedBoost = BoostDropdown.Value or "Luck" -- Mặc định là "Luck" nếu không có giá trị
+                -- Lấy danh sách Boost được chọn từ Dropdown
+                for _, selectedBoost in ipairs(BoostDropdown.Value) do
+                    if not AutoBuyBoost.Value then break end
 
-                local args = {
-                    [1] = selectedBoost -- Loại Boost được chọn
-                }
+                    local args = {
+                        [1] = selectedBoost -- Loại Boost được chọn
+                    }
 
-                -- Gửi yêu cầu đến máy chủ để mua Boost
-                game:GetService("ReplicatedStorage").Packages.Knit.Services.ChiUpgradeService.RF.BuyBoost:InvokeServer(unpack(args))
-                task.wait(30) -- Chờ 5 giây trước khi mua lại
+                    -- Gửi yêu cầu đến máy chủ để mua Boost
+                    game:GetService("ReplicatedStorage").Packages.Knit.Services.ChiUpgradeService.RF.BuyBoost:InvokeServer(unpack(args))
+                    task.wait(5) -- Chờ 5 giây trước khi mua loại Boost tiếp theo
+                end
+
+                task.wait(30) -- Chờ 30 giây trước khi vòng lặp tiếp tục
             end
         end)
     else
         stopThread("AutoBuyBoost") -- Dừng luồng AutoBuyBoost
     end
 end)
+
 
 
 -- Thêm Dropdown để chọn tên trứng
@@ -261,6 +266,25 @@ AutoEgg:OnChanged(function()
 
             task.wait(1) -- Chờ 1 giây trước khi lặp lại
         end
+    end
+end)
+
+local AutoClaimPetEventToggle = Tabs.Main:AddToggle("AutoClaimPetEvent", {
+    Title = "Auto Claim Pet Event",
+    Default = false
+})
+
+AutoClaimPetEventToggle:OnChanged(function()
+    if AutoClaimPetEventToggle.Value then
+        startThread("AutoClaimPetEvent", function()
+            while AutoClaimPetEventToggle.Value do
+                -- Gửi yêu cầu nhận phần thưởng Pet Event
+                game:GetService("ReplicatedStorage").Packages.Knit.Services.EventEggService.RF.Claim:InvokeServer()
+                task.wait(60) -- Chờ 60 giây trước khi nhận lại
+            end
+        end)
+    else
+        stopThread("AutoClaimPetEvent") -- Dừng luồng AutoClaimPetEvent
     end
 end)
 
