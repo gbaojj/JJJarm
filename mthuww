@@ -277,6 +277,38 @@ AutoDragonTrialToggle:OnChanged(function()
         stopThread("AutoDragonTrial")
     end
 end)
+-- Thêm Toggle cho Auto Equip Bicep
+local AutoEquipToggle = Tabs.Main:AddToggle("AutoEquip", {
+    Title = "Auto Equip Bicep",
+    Default = false
+})
+
+AutoEquipToggle:OnChanged(function()
+    if AutoEquipToggle.Value then
+        startThread("AutoEquip", function()
+            while AutoEquipToggle.Value do
+                -- Chọn Auto Equip Bicep
+                local args1 = {
+                    [1] = "DragonTemple",
+                    [2] = "Biceps", -- Đảm bảo chọn đúng vũ khí, hoặc thiết bị biceps
+                    [3] = "DragonTemple3" -- Đảm bảo vị trí và thông tin đúng
+                }
+                game:GetService("ReplicatedStorage").Packages.Knit.Services.ToolService.RE.onEquipRequest:FireServer(unpack(args1))
+                task.wait(2) -- Điều chỉnh thời gian chờ giữa các lần gửi yêu cầu
+
+                -- Gọi sự kiện onClick liên tục để kích hoạt hành động auto-training (hoặc hành động tương ứng)
+                print("Đã trang bị Bicep, gọi onClick.")
+                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+                print("Yêu cầu onClick đã được gửi.")
+
+                -- Thêm thời gian chờ để tránh gửi yêu cầu quá nhanh
+                task.wait(3)
+            end
+        end)
+    else
+        stopThread("AutoEquip")
+    end
+end)
 
 
 
