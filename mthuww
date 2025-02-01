@@ -192,9 +192,9 @@ local AutoDragonTrialToggle = Tabs.Main:AddToggle("AutoDragonTrial", {
     Default = false
 })
 
--- Hàm kiểm tra và tham gia Dragon Trial
+-- Biến kiểm soát Auto Dragon Trial
 autoDragonTrialActive = false
-local npcStoppedForTrial = false -- Biến để tránh gọi stopThread("NPCFarm") nhiều lần
+local npcStoppedForTrial = false -- Tránh dừng nhiều lần
 
 AutoDragonTrialToggle:OnChanged(function()
     autoDragonTrialActive = AutoDragonTrialToggle.Value
@@ -206,39 +206,48 @@ AutoDragonTrialToggle:OnChanged(function()
                 if TextLabel then
                     print("Countdown Text:", TextLabel.Text) -- Debug console
                     
-                    if TextLabel.Text == "Ready!" then
-                        -- Dừng Auto NPC
+                    -- Kiểm tra định dạng "0mins 15sec" hoặc tương tự
+                    local minutes, seconds = TextLabel.Text:match("(%d+)mins?%s?(%d+)sec?")
+                    minutes = tonumber(minutes) or 0
+                    seconds = tonumber(seconds) or 0
+                    local timeRemaining = (minutes * 60) + seconds
+
+                    print("Time Remaining:", timeRemaining, "seconds") -- Debug console
+
+                    -- Dừng Auto NPC nếu còn dưới 15 giây
+                    if timeRemaining < 15 and not npcStoppedForTrial then
+                        print("Stopping Auto NPC Farm due to countdown being under 15 seconds")
                         stopThread("NPCFarm")
-                        npcStoppedForTrial = false -- Reset biến kiểm tra
+                        npcStoppedForTrial = true -- Đánh dấu đã dừng
+                    end
+
+                    -- Nếu countdown đạt "Ready!", tham gia Dragon Trial
+                    if TextLabel.Text == "Ready!" then
+                        -- Dừng Auto NPC (chắc chắn dừng trước khi vào)
+                        stopThread("NPCFarm")
+                        npcStoppedForTrial = false -- Reset trạng thái
 
                         -- Tham gia Dragon Trial
                         game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnClick:InvokeServer()
                         game:GetService("ReplicatedStorage").Packages.Knit.Services.ChampionshipService.RF.RequestJoin:InvokeServer("Dragon")
-                        
-                        -- Lấy thời gian countdown từ GUI
-                        local minutes, seconds = TextLabel.Text:match("(%d+)%s?m%s?(%d+)%s?s")
-                        local countdown = (tonumber(minutes) or 5) * 60 + (tonumber(seconds) or 0)
-                        local startTime = os.time()
-                        
+
+                        -- Lấy lại thời gian đếm ngược cho Dragon Trial (mặc định 300 giây)
+                        local trialCountdown = 300
+                        local trialStartTime = os.time()
+
+                        -- Vòng lặp đếm ngược trong Dragon Trial
                         while autoDragonTrialActive do
                             task.wait(1)
-                            local elapsedTime = os.time() - startTime
-                            local timeRemaining = countdown - elapsedTime
-                            
-                            print("Time remaining:", timeRemaining, "seconds") -- Debug console
-                            
-                            -- Dừng Auto NPC nếu thời gian còn dưới 15 giây
-                            if timeRemaining < 15 and not npcStoppedForTrial then
-                                print("Stopping Auto NPC Farm due to countdown being under 15 seconds")
-                                stopThread("NPCFarm")
-                                npcStoppedForTrial = true -- Đánh dấu đã dừng để tránh gọi nhiều lần
-                            end
-                            
-                            if elapsedTime >= countdown then
-                                break
+                            local trialElapsed = os.time() - trialStartTime
+                            local trialRemaining = trialCountdown - trialElapsed
+
+                            print("Dragon Trial Time Remaining:", trialRemaining, "seconds") -- Debug console
+
+                            if trialRemaining <= 0 then
+                                break -- Thoát vòng lặp sau khi kết thúc Trial
                             end
                         end
-                        
+
                         -- Tiếp tục Auto NPC nếu đang bật
                         if isAutoFarming then
                             startThread("NPCFarm", function()
