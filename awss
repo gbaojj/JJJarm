@@ -297,7 +297,7 @@ AutoDragonTrialToggle:OnChanged(function()
             while autoDragonTrialActive do
                 local TextLabel = game:GetService("Players").LocalPlayer.PlayerGui.Misc.Trials.Timer.Dragon.Timer
                 if TextLabel then
-                    print("Countdown Text:", TextLabel.Text) -- Debug console
+                    
                     
                     if TextLabel.Text == "Ready!" then
                         --  Dừng Auto NPC hoàn toàn trước khi tham gia Trial
@@ -323,7 +323,7 @@ AutoDragonTrialToggle:OnChanged(function()
                             task.wait(1)
                             local elapsedTime = os.time() - startTime
                             local timeRemaining = countdown - elapsedTime
-                            print("Time remaining:", timeRemaining, "seconds") -- Debug console
+                            
                             
                             --  Dừng vòng lặp chính xác khi timeRemaining == 0
                             if timeRemaining <= 0 then
@@ -336,7 +336,6 @@ AutoDragonTrialToggle:OnChanged(function()
 
                         --  Tiếp tục Auto NPC chỉ khi Auto Dragon Trial vẫn bật
                         if autoDragonTrialActive then
-                            print("Restarting Auto NPC...") -- Debug console
                             isAutoFarming = true
                             startThread("NPCFarm", function()
                                 while isAutoFarming do
