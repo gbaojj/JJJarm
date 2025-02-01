@@ -334,7 +334,7 @@ AutoDragonTrialToggle:OnChanged(function()
                         end
                         
                         --  Chờ thêm 2 giây trước khi tiếp tục Auto NPC
-                        task.wait(2)
+                        task.wait(5)
 
                         --  Tiếp tục Auto NPC chỉ khi Auto Dragon Trial vẫn bật
                         if autoDragonTrialActive then
