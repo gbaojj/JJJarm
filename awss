@@ -302,13 +302,17 @@ AutoDragonTrialToggle:OnChanged(function()
                     print("Countdown Text:", TextLabel.Text) -- Debug console
                     
                     if TextLabel.Text == "Ready!" then
-                        -- Dừng Auto NPC
-                        stopThread("NPCFarm")
+                        --  Dừng Auto NPC hoàn toàn trước khi tham gia Trial
+                        if isAutoFarming then
+                            stopThread("NPCFarm")  -- Dừng Auto NPC
+                            isAutoFarming = false  -- Đặt trạng thái Auto NPC thành false
+                            task.wait(1)  -- Đợi 1 giây để đảm bảo NPCFarm đã dừng
+                        end
 
-                        -- Chờ 5 giây trước khi tham gia Dragon Trial
+                        --  Chờ 5 giây trước khi gửi request vào Dragon Trial
                         task.wait(5)
 
-                        -- Tham gia Dragon Trial
+                        --  Tham gia Dragon Trial
                         game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnClick:InvokeServer()
                         game:GetService("ReplicatedStorage").Packages.Knit.Services.ChampionshipService.RF.RequestJoin:InvokeServer("Dragon")
                         
@@ -320,14 +324,22 @@ AutoDragonTrialToggle:OnChanged(function()
                         while autoDragonTrialActive do
                             task.wait(1)
                             local elapsedTime = os.time() - startTime
-                            print("Time remaining:", countdown - elapsedTime, "seconds") -- Debug console
-                            if elapsedTime >= countdown then
+                            local timeRemaining = countdown - elapsedTime
+                            print("Time remaining:", timeRemaining, "seconds") -- Debug console
+                            
+                            --  Dừng vòng lặp chính xác khi timeRemaining == 0
+                            if timeRemaining <= 0 then
                                 break
                             end
                         end
                         
-                        -- Tiếp tục Auto NPC nếu đang bật
-                        if isAutoFarming then
+                        --  Chờ thêm 2 giây trước khi tiếp tục Auto NPC
+                        task.wait(2)
+
+                        --  Tiếp tục Auto NPC chỉ khi Auto Dragon Trial vẫn bật
+                        if autoDragonTrialActive then
+                            print("Restarting Auto NPC...") -- Debug console
+                            isAutoFarming = true
                             startThread("NPCFarm", function()
                                 while isAutoFarming do
                                     for _, npc in ipairs(npcPath:GetChildren()) do
@@ -355,6 +367,7 @@ AutoDragonTrialToggle:OnChanged(function()
         stopThread("AutoDragonTrial")
     end
 end)
+
 
 
 -- SaveManager and InterfaceManager Setup
