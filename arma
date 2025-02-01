@@ -252,6 +252,40 @@ AutoDragonTrialToggle:OnChanged(function()
         stopThread("AutoDragonTrial")
     end
 end)
+-- Thêm Toggle cho Auto Training Barbell
+local AutoTrainingToggle = Tabs.Main:AddToggle("AutoTraining", {
+    Title = "Auto Training Barbell",
+    Default = false
+})
+
+AutoTrainingToggle:OnChanged(function()
+    if AutoTrainingToggle.Value then
+        startThread("AutoTraining", function()
+            while AutoTrainingToggle.Value do
+                -- Chọn Auto Training Biceps
+                local args1 = {
+                    [1] = "AutoTraining",
+                    [2] = {
+                        ["TrainingType"] = "Biceps"
+                    }
+                }
+                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onEquipRequest"):FireServer(unpack(args))
+                task.wait(2)
+                
+                -- Chọn Barbell
+                local args2 = {
+                    [1] = "DragonTemple",
+                    [2] = "Barbells",
+                    [3] = "DragonTemple3"
+                }
+                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("AutoService"):WaitForChild("RF"):WaitForChild("SetRejoin"):InvokeServer(unpack(args))
+                task.wait(2) -- Điều chỉnh thời gian chờ giữa các lần gửi yêu cầu
+            end
+        end)
+    else
+        stopThread("AutoTraining")
+    end
+end)
 
 
 
