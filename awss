@@ -258,8 +258,6 @@ AutoEgg:OnChanged(function()
 
             -- Gửi yêu cầu đến máy chủ để mở trứng
             game:GetService("ReplicatedStorage").Packages.Knit.Services.EggService.RF.purchaseEgg:InvokeServer(unpack(args))
-
-            task.wait(1) -- Chờ 1 giây trước khi lặp lại
         end
     end
 end)
@@ -334,7 +332,7 @@ AutoDragonTrialToggle:OnChanged(function()
                         end
                         
                         --  Chờ thêm 2 giây trước khi tiếp tục Auto NPC
-                        task.wait(5)
+                        task.wait(8)
 
                         --  Tiếp tục Auto NPC chỉ khi Auto Dragon Trial vẫn bật
                         if autoDragonTrialActive then
