@@ -280,52 +280,50 @@ AutoDragonTrialToggle:OnChanged(function()
             while autoDragonTrialActive do
                 local TextLabel = game:GetService("Players").LocalPlayer.PlayerGui.Misc.Trials.Timer.Dragon.Timer
                 if TextLabel then
-                    local minutes, seconds = TextLabel.Text:match("(%d+)%s?m%s?(%d+)%s?s")
-                    local countdown = (tonumber(minutes) or 0) * 60 + (tonumber(seconds) or 0)
-                    
-                    if countdown > 0 and countdown <= 10 then
-                        print("Stopping NPCFarm before Trial starts!")
-                        stopThread("NPCFarm")
-                    end
+                    print("Countdown Text:", TextLabel.Text) -- Debug console
                     
                     if TextLabel.Text == "Ready!" then
+                        -- Dừng Auto NPC
+                        stopThread("NPCFarm")
+                        
                         -- Tham gia Dragon Trial
                         game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnClick:InvokeServer()
                         game:GetService("ReplicatedStorage").Packages.Knit.Services.ChampionshipService.RF.RequestJoin:InvokeServer("Dragon")
-                    end
-
-                    -- Chờ kết thúc Trial
-                    while autoDragonTrialActive and countdown > 0 do
-                        task.wait(1)
-                        minutes, seconds = TextLabel.Text:match("(%d+)%s?m%s?(%d+)%s?s")
-                        countdown = (tonumber(minutes) or 0) * 60 + (tonumber(seconds) or 0)
-                    end
-                    
-                    -- Đợi "Ready!" xuất hiện lại
-                    repeat
-                        task.wait(1)
-                    until TextLabel.Text == "Ready!"
-                    
-                    -- Tiếp tục Auto NPC nếu đang bật
-                    if isAutoFarming then
-                        print("Restarting NPCFarm after trial ends.")
-                        startThread("NPCFarm", function()
-                            while isAutoFarming do
-                                for _, npc in ipairs(npcPath:GetChildren()) do
-                                    if not isAutoFarming then break end
-                                    if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
-                                        local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                        if humanoid then   
-                                            humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                                            task.wait(0.5)
-                                            interactWithNPC()
-                                            task.wait(3.5)
+                        
+                        -- Lấy thời gian countdown từ GUI
+                        local minutes, seconds = TextLabel.Text:match("(%d+)%s?m%s?(%d+)%s?s")
+                        local countdown = (tonumber(minutes) or 5) * 60 + (tonumber(seconds) or 0)
+                        local startTime = os.time()
+                        
+                        while autoDragonTrialActive do
+                            task.wait(1)
+                            local elapsedTime = os.time() - startTime
+                            print("Time remaining:", countdown - elapsedTime, "seconds") -- Debug console
+                            if elapsedTime >= countdown then
+                                break
+                            end
+                        end
+                        
+                        -- Tiếp tục Auto NPC nếu đang bật
+                        if isAutoFarming then
+                            startThread("NPCFarm", function()
+                                while isAutoFarming do
+                                    for _, npc in ipairs(npcPath:GetChildren()) do
+                                        if not isAutoFarming then break end
+                                        if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
+                                            local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                                            if humanoid then   
+                                                humanoid.CFrame = npc.Table.PlayerRoot.CFrame
+                                                task.wait(0.5)
+                                                interactWithNPC()
+                                                task.wait(3.5)
+                                            end
                                         end
                                     end
+                                    task.wait(1)
                                 end
-                                task.wait(1)
-                            end
-                        end)
+                            end)
+                        end
                     end
                 end
                 task.wait(1)
