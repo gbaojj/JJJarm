@@ -281,29 +281,37 @@ AutoDragonTrialToggle:OnChanged(function()
                 local TextLabel = game:GetService("Players").LocalPlayer.PlayerGui.Misc.Trials.Timer.Dragon.Timer
                 if TextLabel then
                     print("Countdown Text:", TextLabel.Text) -- Debug console
-                    
+
                     if TextLabel.Text == "Ready!" then
                         -- Dừng Auto NPC
                         stopThread("NPCFarm")
-                        
+
                         -- Tham gia Dragon Trial
                         game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnClick:InvokeServer()
                         game:GetService("ReplicatedStorage").Packages.Knit.Services.ChampionshipService.RF.RequestJoin:InvokeServer("Dragon")
-                        
-                        -- Lấy thời gian countdown từ GUI
-                        local minutes, seconds = TextLabel.Text:match("(%d+)%s?m%s?(%d+)%s?s")
-                        local countdown = (tonumber(minutes) or 5) * 60 + (tonumber(seconds) or 0)
-                        local startTime = os.time()
-                        
-                        while autoDragonTrialActive do
+
+                        -- Chờ đến khi thời gian bắt đầu đếm ngược
+                        repeat
                             task.wait(1)
-                            local elapsedTime = os.time() - startTime
-                            print("Time remaining:", countdown - elapsedTime, "seconds") -- Debug console
-                            if elapsedTime >= countdown then
-                                break
-                            end
+                            print("Waiting for countdown to start...")
+                        until TextLabel.Text:match("%d+m %d+s")
+
+                        -- Cập nhật thời gian thực từ GUI
+                        while autoDragonTrialActive do
+                            local minutes, seconds = TextLabel.Text:match("(%d+)%s?m%s?(%d+)%s?s")
+                            local countdown = (tonumber(minutes) or 0) * 60 + (tonumber(seconds) or 0)
+                            print("Time remaining:", countdown, "seconds") -- Debug console
+
+                            if countdown <= 0 then break end
+                            task.wait(1)
                         end
-                        
+
+                        -- Chờ đến khi "Ready!" xuất hiện lại
+                        repeat
+                            task.wait(1)
+                            print("Waiting for Ready! to appear...")
+                        until TextLabel.Text == "Ready!"
+
                         -- Tiếp tục Auto NPC nếu đang bật
                         if isAutoFarming then
                             startThread("NPCFarm", function()
@@ -333,6 +341,7 @@ AutoDragonTrialToggle:OnChanged(function()
         stopThread("AutoDragonTrial")
     end
 end)
+
 
 
 
