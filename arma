@@ -120,7 +120,8 @@ AutoTrainingToggle:OnChanged(function()
                 }
                 game:GetService("ReplicatedStorage").Packages.Knit.Services.AutoService.RF.SetRejoin:InvokeServer(unpack(args1))
                 task.wait(2)
-                
+
+
                 -- Chọn Barbell
                 local args2 = {
                     [1] = "DragonTemple",
@@ -128,7 +129,16 @@ AutoTrainingToggle:OnChanged(function()
                     [3] = "DragonTemple3"
                 }
                 game:GetService("ReplicatedStorage").Packages.Knit.Services.ToolService.RE.onEquipRequest:FireServer(unpack(args2))
+                task.wait(2)
                 game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+                task.wait(0.4)
+                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+                task.wait(0.4)
+                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+                task.wait(0.4)
+                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+                task.wait(0.4)
+
             end
         end)
     else
