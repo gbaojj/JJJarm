@@ -283,10 +283,17 @@ AutoDragonTrialToggle:OnChanged(function()
                     print("Countdown Text:", TextLabel.Text) -- Debug console
                     
                     if TextLabel.Text == "Ready!" then
-                        -- Dừng Auto NPC
-                        stopThread("NPCFarm")
-                        
-                        -- Tham gia Dragon Trial
+                        -- 🔴 Dừng Auto NPC HOÀN TOÀN trước khi tham gia Trial
+                        if isAutoFarming then
+                            stopThread("NPCFarm")  -- Dừng Auto NPC
+                            isAutoFarming = false  -- Đặt trạng thái Auto NPC thành false
+                            task.wait(1)  -- Đợi 1 giây để đảm bảo NPCFarm đã dừng
+                        end
+
+                        -- 🔵 Chờ 5 giây trước khi gửi request vào Dragon Trial
+                        task.wait(5)
+
+                        -- 🟢 Tham gia Dragon Trial
                         game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnClick:InvokeServer()
                         game:GetService("ReplicatedStorage").Packages.Knit.Services.ChampionshipService.RF.RequestJoin:InvokeServer("Dragon")
                         
@@ -304,8 +311,9 @@ AutoDragonTrialToggle:OnChanged(function()
                             end
                         end
                         
-                        -- Tiếp tục Auto NPC nếu đang bật
-                        if isAutoFarming then
+                        -- 🔄 Tiếp tục Auto NPC chỉ khi Auto Dragon Trial vẫn bật
+                        if AutoDragonTrialToggle.Value then
+                            isAutoFarming = true
                             startThread("NPCFarm", function()
                                 while isAutoFarming do
                                     for _, npc in ipairs(npcPath:GetChildren()) do
