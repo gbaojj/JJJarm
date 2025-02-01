@@ -263,6 +263,67 @@ AutoEgg:OnChanged(function()
     end
 end)
 
+-- Thêm Toggle cho Auto Dragon Trial
+local AutoDragonTrialToggle = Tabs.Main:AddToggle("AutoDragonTrial", {
+    Title = "Auto Dragon Trial",
+    Default = false
+})
+
+-- Hàm kiểm tra và tham gia Dragon Trial
+autoDragonTrialActive = false
+
+AutoDragonTrialToggle:OnChanged(function()
+    autoDragonTrialActive = AutoDragonTrialToggle.Value
+
+    if autoDragonTrialActive then
+        startThread("AutoDragonTrial", function()
+            local Text = Pl.PlayerGui.Misc.Trials.Timer.Dragon.Timer
+            while autoDragonTrialActive do
+                if Text and Text.Text == "Ready!" then
+                    -- Dừng Auto NPC
+                    stopThread("NPCFarm")
+                    
+                    -- Tham gia Dragon Trial
+                    game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnClick:InvokeServer()
+                    game:GetService("ReplicatedStorage").Packages.Knit.Services.ChampionshipService.RF.RequestJoin:InvokeServer("Dragon")
+                    
+                    -- Chờ cho đến khi Trial kết thúc (5 phút)
+                    local countdown = 300 -- 5 phút tính bằng giây
+                    while countdown > 0 and autoDragonTrialActive do
+                        task.wait(1)
+                        countdown = countdown - 1
+                    end
+                    
+                    -- Tiếp tục Auto NPC
+                    if isAutoFarming then
+                        startThread("NPCFarm", function()
+                            while isAutoFarming do
+                                for _, npc in ipairs(npcPath:GetChildren()) do
+                                    if not isAutoFarming then break end
+                                    if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
+                                        local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                                        if humanoid then   
+                                            humanoid.CFrame = npc.Table.PlayerRoot.CFrame
+                                            task.wait(0.5)
+                                            interactWithNPC()
+                                            task.wait(3.5)
+                                        end
+                                    end
+                                end
+                                task.wait(1)
+                            end
+                        end)
+                    end
+                end
+                task.wait(1)
+            end
+        end)
+    else
+        stopThread("AutoDragonTrial")
+    end
+end)
+
+
 
 -- SaveManager and InterfaceManager Setup
 SaveManager:SetLibrary(Fluent)
