@@ -365,109 +365,6 @@ AutoDragonTrialToggle:OnChanged(function()
     end
 end)
 
--- Optimized Script to Reduce Memory Leak Issues
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-
-game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnAutoFight:InvokeServer()
-
-local Window = Fluent:CreateWindow({
-    Title = "Arm ",
-    SubTitle = "by gbao",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true, 
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
-})
-
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-}
-
-local Options = Fluent.Options
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local npcPath = workspace.GameObjects.RngNPCs.BlossomVillage.Npc
-
-local isAutoFarming = false
-local activeThreads = {}
-
--- Helper to manage threads
-local function stopThread(threadName)
-    if activeThreads[threadName] then
-        activeThreads[threadName] = false
-    end
-end
-
-local function startThread(threadName, func)
-    stopThread(threadName) -- Stop any existing thread with the same name
-    activeThreads[threadName] = true
-    task.defer(function()
-        while activeThreads[threadName] do
-            func()
-        end
-    end)
-end
-
--- Function to update proximity prompts
-local function updateProximityPrompts(folder)
-    for _, descendant in ipairs(folder:GetDescendants()) do
-        if descendant:IsA("ProximityPrompt") then
-            descendant.HoldDuration = 0 -- Đặt thời gian giữ phím E = 0
-            descendant.Style = Enum.ProximityPromptStyle.Default
-            descendant.MaxActivationDistance = 6 -- Tăng khoảng cách kích hoạt
-        end
-    end
-end
-
-
--- Function for Auto NPC Farming
-local function interactWithNPC()
-    task.wait(0.1) -- Đợi một chút trước khi gửi phím
-    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-    task.wait(0.1)
-    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
-end
-
-local AutoBeatNPCToggle = Tabs.Main:AddToggle("AutoBeatNPC", {
-    Title = "Auto Beat NPC",
-    Default = false
-})
-
-AutoBeatNPCToggle:OnChanged(function()
-    isAutoFarming = AutoBeatNPCToggle.Value
-
-    if isAutoFarming then
-        task.spawn(function()
-            while isAutoFarming do
-                updateProximityPrompts(npcPath)
-                task.wait(3) -- Cập nhật mỗi 3 giây
-            end
-        end)
-
-        startThread("NPCFarm", function()
-            local npcs = npcPath:GetChildren()
-            for _, npc in ipairs(npcs) do
-                if not isAutoFarming then break end
-                if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
-                    local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                    if humanoid then   
-                        humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                        task.wait(0.5) -- Short delay to avoid overlapping actions
-                        interactWithNPC()
-                        task.wait(3)
-                    end
-                end
-            end
-            task.wait(2)
-        end)
-    else
-        stopThread("NPCFarm")
-    end
-end)
-
 -- Thêm Toggle cho Auto Training Barbell
 local AutoTrainingToggle = Tabs.Egg:AddToggle("AutoTraining", {
     Title = "Auto Training Barbell",
@@ -496,7 +393,6 @@ AutoTrainingToggle:OnChanged(function()
                     [3] = "DragonTemple3"
                 }
                 game:GetService("ReplicatedStorage").Packages.Knit.Services.ToolService.RE.onEquipRequest:FireServer(unpack(args2))
-                task.wait(2)
                 game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
                 task.wait(0.4)
                 game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
