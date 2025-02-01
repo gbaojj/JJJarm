@@ -101,157 +101,6 @@ AutoBeatNPCToggle:OnChanged(function()
     end
 end)
 
--- Function for Auto Buying
-local AutoBuyToggle = Tabs.Main:AddToggle("AutoBuyToggle", {
-    Title = "Auto Buy (Selected Slots)",
-    Default = false
-})
-
-local BlackMarketDropdown = Tabs.Main:AddDropdown("BlackMarketDropdown", {
-    Title = "Select Merchant Slot(s)",
-    Values = {1, 2, 3, 4, 5},
-    Multi = true,
-    Default = {}
-})
-
-AutoBuyToggle:OnChanged(function()
-    if AutoBuyToggle.Value then
-        startThread("AutoBuy", function()
-            for i = 1, 3 do
-                for number, isSelected in pairs(BlackMarketDropdown.Value) do
-                    if not AutoBuyToggle.Value then break end
-                    if isSelected then
-                        local args = {
-                            [1] = "Blossom Merchant",
-                            [2] = number
-                        }
-                        game:GetService("ReplicatedStorage").Packages.Knit.Services.LimitedMerchantService.RF.BuyItem:InvokeServer(unpack(args))
-                        task.wait(10)
-                    end
-                end
-            end
-            task.wait(90) -- Wait 90 seconds before next cycle
-        end)
-    else
-        stopThread("AutoBuy")
-    end
-end)
-
--- Function for Auto Spin
-local AutoSpinToggle = Tabs.Main:AddToggle("AutoSpin", {
-    Title = "Auto Spin",
-    Default = false
-})
-
-AutoSpinToggle:OnChanged(function()
-    if AutoSpinToggle.Value then
-        startThread("AutoSpin", function()
-            local args = {
-                [1] = "Ninja Fortune",
-                [2] = "x25"
-            }
-            game:GetService("ReplicatedStorage").Packages.Knit.Services.SpinnerService.RF.Spin:InvokeServer(unpack(args))
-            task.wait(3)
-        end)
-    else
-        stopThread("AutoSpin")
-    end
-end)
-
--- Function for Auto Claim Daily Reward
-local AutoClaimRewardToggle = Tabs.Main:AddToggle("AutoClaimReward", {
-    Title = "Auto Claim Daily Reward",
-    Default = false
-})
-
-AutoClaimRewardToggle:OnChanged(function()
-    if AutoClaimRewardToggle.Value then
-        startThread("AutoClaimReward", function()
-            game:GetService("ReplicatedStorage").Packages.Knit.Services.DailyRewardService.RE.onClaimReward:FireServer()
-            task.wait(1800) -- Wait 30 minutes before claiming again
-        end)
-    else
-        stopThread("AutoClaimReward")
-    end
-end)
-
--- Thêm Toggle cho Auto Dragon Trial
-local AutoDragonTrialToggle = Tabs.Main:AddToggle("AutoDragonTrial", {
-    Title = "Auto Dragon Trial",
-    Default = false
-})
-
--- Biến kiểm soát Auto Dragon Trial
-autoDragonTrialActive = false
-local npcStoppedForTrial = false -- Tránh dừng nhiều lần
-
-AutoDragonTrialToggle:OnChanged(function()
-    autoDragonTrialActive = AutoDragonTrialToggle.Value
-
-    if autoDragonTrialActive then
-        startThread("AutoDragonTrial", function()
-            while autoDragonTrialActive do
-                local TextLabel = game:GetService("Players").LocalPlayer.PlayerGui.Misc.Trials.Timer.Dragon.Timer
-                if TextLabel then
-                    print("Countdown Text:", TextLabel.Text) -- Debug console
-                    
-                    -- Kiểm tra định dạng "0mins 15sec" hoặc tương tự
-                    local minutes, seconds = TextLabel.Text:match("(%d+)mins?%s?(%d+)sec?")
-                    minutes = tonumber(minutes) or 0
-                    seconds = tonumber(seconds) or 0
-                    local timeRemaining = (minutes * 60) + seconds
-
-                    print("Time Remaining:", timeRemaining, "seconds") -- Debug console
-
-                    -- Dừng Auto NPC nếu còn dưới 15 giây
-                    if timeRemaining < 15 and not npcStoppedForTrial then
-                        print("Stopping Auto NPC Farm due to countdown being under 15 seconds")
-                        stopThread("NPCFarm")
-                        npcStoppedForTrial = true -- Đánh dấu đã dừng
-                    end
-
-                    -- Nếu countdown đạt "Ready!", tham gia Dragon Trial
-                    if TextLabel.Text == "Ready!" then
-                        -- Dừng Auto NPC (chắc chắn dừng trước khi vào)
-                        stopThread("NPCFarm")
-                        npcStoppedForTrial = false -- Reset trạng thái
-
-                        -- Tham gia Dragon Trial
-                        game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnClick:InvokeServer()
-                        game:GetService("ReplicatedStorage").Packages.Knit.Services.ChampionshipService.RF.RequestJoin:InvokeServer("Dragon")
-
-                        -- Chờ kết thúc Dragon Trial
-                        task.wait(5) -- Đợi một chút cho chắc chắn
-
-                        -- Tiếp tục Auto NPC nếu đang bật
-                        if isAutoFarming then
-                            startThread("NPCFarm", function()
-                                while isAutoFarming do
-                                    for _, npc in ipairs(npcPath:GetChildren()) do
-                                        if not isAutoFarming then break end
-                                        if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
-                                            local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                            if humanoid then   
-                                                humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                                                task.wait(0.5)
-                                                interactWithNPC()
-                                                task.wait(3.5)
-                                            end
-                                        end
-                                    end
-                                    task.wait(1)
-                                end
-                            end)
-                        end
-                    end
-                end
-                task.wait(1)
-            end
-        end)
-    else
-        stopThread("AutoDragonTrial")
-    end
-end)
 -- Thêm Toggle cho Auto Training Barbell
 local AutoTrainingToggle = Tabs.Main:AddToggle("AutoTraining", {
     Title = "Auto Training Barbell",
@@ -269,7 +118,7 @@ AutoTrainingToggle:OnChanged(function()
                         ["TrainingType"] = "Biceps"
                     }
                 }
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onEquipRequest"):FireServer(unpack(args))
+                game:GetService("ReplicatedStorage").Packages.Knit.Services.AutoService.RF.SetRejoin:InvokeServer(unpack(args1))
                 task.wait(2)
                 
                 -- Chọn Barbell
@@ -278,8 +127,8 @@ AutoTrainingToggle:OnChanged(function()
                     [2] = "Barbells",
                     [3] = "DragonTemple3"
                 }
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("AutoService"):WaitForChild("RF"):WaitForChild("SetRejoin"):InvokeServer(unpack(args))
-                task.wait(2) -- Điều chỉnh thời gian chờ giữa các lần gửi yêu cầu
+                game:GetService("ReplicatedStorage").Packages.Knit.Services.ToolService.RE.onEquipRequest:FireServer(unpack(args2))
+                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
             end
         end)
     else
