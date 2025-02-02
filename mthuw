@@ -1,5 +1,4 @@
--- Optimized Script to Reduce Memory Leak Issues
-- Create a ScreenGui for our minimize button
+
 	local MinimizeGui = Instance.new("ScreenGui")
 	MinimizeGui.Name = "MinimizeGui"
 	MinimizeGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
