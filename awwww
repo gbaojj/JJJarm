@@ -407,3 +407,67 @@ Fluent:Notify({
 
 -- Load Auto-Config
 SaveManager:LoadAutoloadConfig()
+
+-- Tạo ScreenGui cho nút minimize
+local MinimizeGui = Instance.new("ScreenGui")
+MinimizeGui.Name = "MinimizeGui"
+MinimizeGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+MinimizeGui.ResetOnSpawn = false
+
+-- Tạo nút Minimize
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Parent = MinimizeGui
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MinimizeButton.BorderColor3 = Color3.fromRGB(50, 50, 50)
+MinimizeButton.Position = UDim2.new(1, -100, 0, 50) -- Nằm góc trên bên phải
+MinimizeButton.Size = UDim2.new(0, 80, 0, 40)
+MinimizeButton.Font = Enum.Font.GothamBold
+MinimizeButton.Text = "Minimize"
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeButton.TextSize = 16.000
+MinimizeButton.AnchorPoint = Vector2.new(1, 0)
+
+-- Thêm hiệu ứng bo góc
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 6)
+UICorner.Parent = MinimizeButton
+
+-- Shadow effect
+local Shadow = Instance.new("ImageLabel")
+Shadow.Name = "Shadow"
+Shadow.Parent = MinimizeButton
+Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+Shadow.BackgroundTransparency = 1
+Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+Shadow.Size = UDim2.new(1, 10, 1, 10)
+Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+Shadow.ImageTransparency = 0.5
+Shadow.Image = "rbxassetid://7912134082"
+Shadow.ZIndex = MinimizeButton.ZIndex - 1
+
+-- Biến kiểm soát trạng thái UI
+local isMinimized = false
+
+-- Chức năng thu nhỏ/phục hồi UI
+MinimizeButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        Window.Frame.Visible = false
+        MinimizeButton.Text = "Open"
+    else
+        Window.Frame.Visible = true
+        MinimizeButton.Text = "Minimize"
+    end
+end)
+
+-- Hiệu ứng hover cho nút
+local TweenService = game:GetService("TweenService")
+
+MinimizeButton.MouseEnter:Connect(function()
+    TweenService:Create(MinimizeButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
+end)
+
+MinimizeButton.MouseLeave:Connect(function()
+    TweenService:Create(MinimizeButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+end)
