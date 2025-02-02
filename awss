@@ -1,26 +1,162 @@
--- Optimized Script to Reduce Memory Leak Issues
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+   local MinimizeGui = Instance.new("ScreenGui")
+	MinimizeGui.Name = "MinimizeGui"
+	MinimizeGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	MinimizeGui.ResetOnSpawn = false
 
-game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnAutoFight:InvokeServer()
+	-- Create the minimize button with centered positioning
+	local MinimizeButton = Instance.new("TextButton")
+	MinimizeButton.Name = "MinimizeButton"
+	MinimizeButton.Parent = MinimizeGui
+	MinimizeButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	MinimizeButton.BorderColor3 = Color3.fromRGB(50, 50, 50)
+	MinimizeButton.AnchorPoint = Vector2.new(0.5, 0.5)
+	MinimizeButton.Position = UDim2.new(0.5, 0, 0.5, 0)
+	MinimizeButton.Size = UDim2.new(0, 80, 0, 40)
+	MinimizeButton.Font = Enum.Font.GothamBold
+	MinimizeButton.Text = "Close"
+	MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	MinimizeButton.TextSize = 16.000
 
-local Window = Fluent:CreateWindow({
-    Title = "Arm ",
-    SubTitle = "by gbao",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true, 
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
-})
+	-- Add corner radius
+	local UICorner = Instance.new("UICorner")
+	UICorner.CornerRadius = UDim.new(0, 6)
+	UICorner.Parent = MinimizeButton
 
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Egg = Window:AddTab({ Title = "Egg", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-    
-}
+	-- Create X button for removal
+	local CloseButton = Instance.new("TextButton")
+	CloseButton.Name = "CloseButton"
+	CloseButton.Parent = MinimizeButton
+	CloseButton.BackgroundTransparency = 1
+	CloseButton.Position = UDim2.new(1, -20, 0, 0)
+	CloseButton.Size = UDim2.new(0, 20, 0, 20)
+	CloseButton.Font = Enum.Font.GothamBold
+	CloseButton.Text = "×"
+	CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	CloseButton.TextSize = 16.000
+	CloseButton.ZIndex = 2
+
+	-- Close button functionality
+	CloseButton.MouseButton1Click:Connect(function()
+		-- Destroy the MinimizeButton and CloseButton
+		MinimizeButton:Destroy()
+		CloseButton:Destroy()
+		-- Optionally, destroy the entire GUI if needed
+		MinimizeGui:Destroy()
+	end)
+
+
+
+	-- Make button draggable
+	local UserInputService = game:GetService("UserInputService")
+	local dragging
+	local dragStart
+	local startPos
+
+	MinimizeButton.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+			dragStart = input.Position
+			startPos = MinimizeButton.Position
+
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+			end)
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+			local delta = input.Position - dragStart
+			MinimizeButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		end
+	end)
+
+	-- Add hover effects for Event button
+	MinimizeButton.MouseEnter:Connect(function()
+		game:GetService("TweenService"):Create(MinimizeButton, TweenInfo.new(0.2), {
+			BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+		}):Play()
+	end)
+
+	MinimizeButton.MouseLeave:Connect(function()
+		game:GetService("TweenService"):Create(MinimizeButton, TweenInfo.new(0.2), {
+			BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+		}):Play()
+	end)
+
+	-- Add hover effects for close button
+	CloseButton.MouseEnter:Connect(function()
+		game:GetService("TweenService"):Create(CloseButton, TweenInfo.new(0.2), {
+			TextColor3 = Color3.fromRGB(255, 100, 100)
+		}):Play()
+	end)
+
+	CloseButton.MouseLeave:Connect(function()
+		game:GetService("TweenService"):Create(CloseButton, TweenInfo.new(0.2), {
+			TextColor3 = Color3.fromRGB(255, 255, 255)
+		}):Play()
+	end)
+
+	local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+	local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+	local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+	game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnAutoFight:InvokeServer()
+
+	local Window = Fluent:CreateWindow({
+		Title = "Arm ",
+		SubTitle = "by gbao",
+		TabWidth = 160,
+		Size = UDim2.fromOffset(580, 460),
+		Acrylic = true, 
+		Theme = "Dark",
+		MinimizeKey = Enum.KeyCode.LeftControl,
+		OnDestroy = function()
+			local fadeOut = game:GetService("TweenService"):Create(MinimizeGui, TweenInfo.new(0.5), {
+				Transparency = 1
+			})
+			fadeOut:Play()
+			fadeOut.Completed:Connect(function()
+				MinimizeGui:Destroy()
+			end)
+		end
+	})
+
+	local Tabs = {
+		Main = Window:AddTab({ Title = "Main", Icon = "" }),
+		Egg = Window:AddTab({ Title = "Egg", Icon = "" }),
+		Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+
+	}
+	-- Initialize state
+	local isMinimized = false
+	Window:Minimize(false)
+
+	-- Regular minimize/maximize functionality
+	MinimizeButton.MouseButton1Click:Connect(function()
+		isMinimized = not isMinimized
+		Window:Minimize(isMinimized)
+
+		local textTween = game:GetService("TweenService"):Create(MinimizeButton, TweenInfo.new(0.2), {
+			TextTransparency = 1
+		})
+
+		textTween:Play()
+		textTween.Completed:Connect(function()
+			MinimizeButton.Text = isMinimized and "Open" or "Close"
+			game:GetService("TweenService"):Create(MinimizeButton, TweenInfo.new(0.2), {
+				TextTransparency = 0
+			}):Play()
+		end)
+	end)
+
+	-- Close button functionality 
+	CloseButton.MouseButton1Click:Connect(function()
+		MinimizeGui:Destroy()
+		Window:Destroy()
+	end)
 
 local Options = Fluent.Options
 local VirtualInputManager = game:GetService("VirtualInputManager")
