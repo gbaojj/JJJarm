@@ -1,4 +1,118 @@
 -- Optimized Script to Reduce Memory Leak Issues
+-- Create a ScreenGui for our minimize button
+local MinimizeGui = Instance.new("ScreenGui")
+MinimizeGui.Name = "MinimizeGui"
+MinimizeGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+MinimizeGui.ResetOnSpawn = false
+
+-- Create the minimize button with centered positioning
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Parent = MinimizeGui
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MinimizeButton.BorderColor3 = Color3.fromRGB(50, 50, 50)
+MinimizeButton.AnchorPoint = Vector2.new(0.5, 0.5)
+MinimizeButton.Position = UDim2.new(0.5, 0, 0.5, 0)
+MinimizeButton.Size = UDim2.new(0, 80, 0, 40)
+MinimizeButton.Font = Enum.Font.GothamBold
+MinimizeButton.Text = "Close"
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeButton.TextSize = 16.000
+
+-- Add corner radius
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 6)
+UICorner.Parent = MinimizeButton
+
+-- Create X button for removal
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Parent = MinimizeButton
+CloseButton.BackgroundTransparency = 1
+CloseButton.Position = UDim2.new(1, -20, 0, 0)
+CloseButton.Size = UDim2.new(0, 20, 0, 20)
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Text = "×"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 16.000
+CloseButton.ZIndex = 2
+
+-- Close button functionality
+CloseButton.MouseButton1Click:Connect(function()
+	-- Destroy the MinimizeButton and CloseButton
+	MinimizeButton:Destroy()
+	CloseButton:Destroy()
+	-- Optionally, destroy the entire GUI if needed
+	MinimizeGui:Destroy()
+end)
+
+
+
+-- Make button draggable
+local UserInputService = game:GetService("UserInputService")
+local dragging
+local dragStart
+local startPos
+
+MinimizeButton.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = MinimizeButton.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+		local delta = input.Position - dragStart
+		MinimizeButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+end)
+
+-- Add hover effects for Event button
+MinimizeButton.MouseEnter:Connect(function()
+	game:GetService("TweenService"):Create(MinimizeButton, TweenInfo.new(0.2), {
+		BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	}):Play()
+end)
+
+MinimizeButton.MouseLeave:Connect(function()
+	game:GetService("TweenService"):Create(MinimizeButton, TweenInfo.new(0.2), {
+		BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	}):Play()
+end)
+
+-- Add hover effects for close button
+CloseButton.MouseEnter:Connect(function()
+	game:GetService("TweenService"):Create(CloseButton, TweenInfo.new(0.2), {
+		TextColor3 = Color3.fromRGB(255, 100, 100)
+	}):Play()
+end)
+
+CloseButton.MouseLeave:Connect(function()
+	game:GetService("TweenService"):Create(CloseButton, TweenInfo.new(0.2), {
+		TextColor3 = Color3.fromRGB(255, 255, 255)
+	}):Play()
+end)
+
+-- Add shadow
+local Shadow = Instance.new("ImageLabel")
+Shadow.Name = "Shadow"
+Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+Shadow.BackgroundTransparency = 1
+Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+Shadow.Size = UDim2.new(1, 10, 1, 10)
+Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+Shadow.ImageTransparency = 0.5
+Shadow.Image = "rbxassetid://7912134082"
+Shadow.Parent = MinimizeButton
+Shadow.ZIndex = MinimizeButton.ZIndex - 1
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -6,19 +120,59 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnAutoFight:InvokeServer()
 
 local Window = Fluent:CreateWindow({
-    Title = "Arm ",
-    SubTitle = "by gbao",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true, 
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
+	Title = "Arm ",
+	SubTitle = "by gbao",
+	TabWidth = 160,
+	Size = UDim2.fromOffset(580, 460),
+	Acrylic = true, 
+	Theme = "Dark",
+	MinimizeKey = Enum.KeyCode.LeftControl
+	OnDestroy = function()
+		local fadeOut = game:GetService("TweenService"):Create(MinimizeGui, TweenInfo.new(0.5), {
+			Transparency = 1
+		})
+		fadeOut:Play()
+		fadeOut.Completed:Connect(function()
+			MinimizeGui:Destroy()
+		end)
+	end
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+	Main = Window:AddTab({ Title = "Main", Icon = "" }),
+	Egg = Window:AddTab({ Title = "Egg", Icon = "" }),
+	Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+
 }
+
+-- Initialize state
+local isMinimized = false
+Window:Minimize(false)
+
+-- Regular minimize/maximize functionality
+MinimizeButton.MouseButton1Click:Connect(function()
+	isMinimized = not isMinimized
+	Window:Minimize(isMinimized)
+
+	local textTween = game:GetService("TweenService"):Create(MinimizeButton, TweenInfo.new(0.2), {
+		TextTransparency = 1
+	})
+
+	textTween:Play()
+	textTween.Completed:Connect(function()
+		MinimizeButton.Text = isMinimized and "Open" or "Close"
+		game:GetService("TweenService"):Create(MinimizeButton, TweenInfo.new(0.2), {
+			TextTransparency = 0
+		}):Play()
+	end)
+end)
+
+-- Close button functionality 
+CloseButton.MouseButton1Click:Connect(function()
+	MinimizeGui:Destroy()
+	Window:Destroy()
+end)
+
 
 local Options = Fluent.Options
 local VirtualInputManager = game:GetService("VirtualInputManager")
@@ -29,148 +183,407 @@ local activeThreads = {}
 
 -- Helper to manage threads
 local function stopThread(threadName)
-    if activeThreads[threadName] then
-        activeThreads[threadName] = false
-    end
+	if activeThreads[threadName] then
+		activeThreads[threadName] = false
+	end
 end
 
 local function startThread(threadName, func)
-    stopThread(threadName) -- Stop any existing thread with the same name
-    activeThreads[threadName] = true
-    task.defer(function()
-        while activeThreads[threadName] do
-            func()
-        end
-    end)
+	stopThread(threadName) -- Stop any existing thread with the same name
+	activeThreads[threadName] = true
+	task.defer(function()
+		while activeThreads[threadName] do
+			func()
+		end
+	end)
 end
 
 -- Function to update proximity prompts
 local function updateProximityPrompts(folder)
-    for _, descendant in ipairs(folder:GetDescendants()) do
-        if descendant:IsA("ProximityPrompt") then
-            descendant.HoldDuration = 0 -- Đặt thời gian giữ phím E = 0
-            descendant.Style = Enum.ProximityPromptStyle.Default
-            descendant.MaxActivationDistance = 6 -- Tăng khoảng cách kích hoạt
-        end
-    end
+	for _, descendant in ipairs(folder:GetDescendants()) do
+		if descendant:IsA("ProximityPrompt") then
+			descendant.HoldDuration = 0 -- Đặt thời gian giữ phím E = 0
+			descendant.Style = Enum.ProximityPromptStyle.Default
+			descendant.MaxActivationDistance = 6 -- Tăng khoảng cách kích hoạt
+		end
+	end
 end
 
 
 -- Function for Auto NPC Farming
 local function interactWithNPC()
-    task.wait(0.1) -- Đợi một chút trước khi gửi phím
-    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-    task.wait(0.1)
-    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+	task.wait(0.1) -- Đợi một chút trước khi gửi phím
+	VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+	task.wait(0.1)
+	VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 end
 
 local AutoBeatNPCToggle = Tabs.Main:AddToggle("AutoBeatNPC", {
-    Title = "Auto Beat NPC",
-    Default = false
+	Title = "Auto Beat NPC",
+	Default = false
 })
 
 AutoBeatNPCToggle:OnChanged(function()
-    isAutoFarming = AutoBeatNPCToggle.Value
+	isAutoFarming = AutoBeatNPCToggle.Value
 
-    if isAutoFarming then
-        task.spawn(function()
-            while isAutoFarming do
-                updateProximityPrompts(npcPath)
-                task.wait(3) -- Cập nhật mỗi 3 giây
-            end
-        end)
+	if isAutoFarming then
+		-- Cập nhật ProximityPrompt cho tất cả các NPC hiện tại trong npcPath
+		for _, npc in ipairs(npcPath:GetChildren()) do
+			if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
+				updateProximityPrompts(npc) -- Cập nhật ProximityPrompt cho NPC
+			end
+		end
 
-        startThread("NPCFarm", function()
-            local npcs = npcPath:GetChildren()
-            for _, npc in ipairs(npcs) do
-                if not isAutoFarming then break end
-                if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
-                    local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                    if humanoid then   
-                        humanoid.CFrame = npc.Table.PlayerRoot.CFrame
-                        task.wait(0.5) -- Short delay to avoid overlapping actions
-                        interactWithNPC()
-                        task.wait(3)
-                    end
-                end
-            end
-            task.wait(2)
-        end)
-    else
-        stopThread("NPCFarm")
-    end
+		-- Lắng nghe sự kiện ChildAdded để cập nhật các NPC mới
+		npcPath.ChildAdded:Connect(function(child)
+			if child:IsA("Model") and child:FindFirstChild("Table") and child.Table:FindFirstChild("PlayerRoot") then
+				updateProximityPrompts(child) -- Cập nhật ProximityPrompt cho NPC mới
+			end
+		end)
+
+		-- Tiến hành tương tác với NPC
+		startThread("NPCFarm", function()
+			while isAutoFarming do
+				for _, npc in ipairs(npcPath:GetChildren()) do
+					if not isAutoFarming then break end
+					if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
+						local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+						if humanoid then   
+							humanoid.CFrame = npc.Table.PlayerRoot.CFrame
+							task.wait(0.5) -- Short delay to avoid overlapping actions
+							interactWithNPC()
+							task.wait(3.5)
+						end
+					end
+				end
+				task.wait(1)
+			end
+		end)
+	else
+		stopThread("NPCFarm")
+	end
+end)
+
+-- Function for Auto Buying
+local AutoBuyToggle = Tabs.Main:AddToggle("AutoBuyToggle", {
+	Title = "Auto Buy (Selected Slots)",
+	Default = false
+})
+
+local BlackMarketDropdown = Tabs.Main:AddDropdown("BlackMarketDropdown", {
+	Title = "Select Merchant Slot(s)",
+	Values = {1, 2, 3, 4, 5},
+	Multi = true,
+	Default = {}
+})
+
+AutoBuyToggle:OnChanged(function()
+	if AutoBuyToggle.Value then
+		startThread("AutoBuy", function()
+			for i = 1, 3 do
+				for number, isSelected in pairs(BlackMarketDropdown.Value) do
+					if not AutoBuyToggle.Value then break end
+					if isSelected then
+						local args = {
+							[1] = "Blossom Merchant",
+							[2] = number
+						}
+						game:GetService("ReplicatedStorage").Packages.Knit.Services.LimitedMerchantService.RF.BuyItem:InvokeServer(unpack(args))
+						task.wait(10)
+					end
+				end
+			end
+			task.wait(90) -- Wait 90 seconds before next cycle
+		end)
+	else
+		stopThread("AutoBuy")
+	end
+end)
+
+-- Function for Auto Spin
+local AutoSpinToggle = Tabs.Main:AddToggle("AutoSpin", {
+	Title = "Auto Spin",
+	Default = false
+})
+
+AutoSpinToggle:OnChanged(function()
+	if AutoSpinToggle.Value then
+		startThread("AutoSpin", function()
+			local args = {
+				[1] = "Ninja Fortune",
+				[2] = "x25"
+			}
+			game:GetService("ReplicatedStorage").Packages.Knit.Services.SpinnerService.RF.Spin:InvokeServer(unpack(args))
+			task.wait(3)
+		end)
+	else
+		stopThread("AutoSpin")
+	end
+end)
+
+-- Function for Auto Claim Daily Reward
+local AutoClaimRewardToggle = Tabs.Main:AddToggle("AutoClaimReward", {
+	Title = "Auto Claim Daily Reward",
+	Default = false
+})
+
+AutoClaimRewardToggle:OnChanged(function()
+	if AutoClaimRewardToggle.Value then
+		startThread("AutoClaimReward", function()
+			game:GetService("ReplicatedStorage").Packages.Knit.Services.DailyRewardService.RE.onClaimReward:FireServer()
+			task.wait(1800) -- Wait 30 minutes before claiming again
+		end)
+	else
+		stopThread("AutoClaimReward")
+	end
+end)
+
+-- Chỉnh sửa Dropdown để chọn loại Boost (multi)
+local BoostDropdown = Tabs.Egg:AddDropdown("BoostDropdown", {
+	Title = "Chọn Loại Boost",
+	Values = {"Luck", "Training", "Candy"}, -- Danh sách các Boost có thể mua
+	Multi = false, -- Chỉ được chọn một loại Boost
+	Default = "Luck" -- Giá trị mặc định
+})
+
+-- Thêm nút chuyển đổi (toggle) Auto Buy Boost
+local AutoBuyBoost = Tabs.Egg:AddToggle("AutoBuyBoost", {
+	Title = "Auto Mua Boost",
+	Default = false
+})
+
+AutoBuyBoost:OnChanged(function()
+	if AutoBuyBoost.Value then
+		startThread("AutoBuyBoost", function()
+			while AutoBuyBoost.Value do
+				-- Lấy loại Boost được chọn từ Dropdown
+				local selectedBoost = BoostDropdown.Value or "Luck" -- Mặc định là "Luck" nếu không có giá trị
+
+				local args = {
+					[1] = selectedBoost -- Loại Boost được chọn
+				}
+
+				-- Gửi yêu cầu đến máy chủ để mua Boost
+				game:GetService("ReplicatedStorage").Packages.Knit.Services.ChiUpgradeService.RF.BuyBoost:InvokeServer(unpack(args))
+				task.wait(30) -- Chờ 5 giây trước khi mua lại
+			end
+		end)
+	else
+		stopThread("AutoBuyBoost") -- Dừng luồng AutoBuyBoost
+	end
+end)
+
+
+-- Thêm Dropdown để chọn tên trứng
+local EggDropdown = Tabs.Egg:AddDropdown("EggDropdown", {
+	Title = "Chọn Tên Trứng",
+	Values = {"Ultimate", "Mutant", "Samurai", "Herbivore", "Wormhole"}, -- Danh sách các trứng có thể mở
+	Multi = false, -- Chỉ được chọn một loại trứng
+	Default = "Ultimate" -- Giá trị mặc định
+})
+
+-- Thêm nút chuyển đổi (toggle) Auto Egg
+local AutoEgg = Tabs.Egg:AddToggle("AutoEGG", {
+	Title = "Auto Mở Trứng",
+	Default = false
+})
+
+-- Biến để kiểm soát vòng lặp
+local autoEggLoop = false
+
+AutoEgg:OnChanged(function()
+	autoEggLoop = AutoEgg.Value -- Bật hoặc tắt vòng lặp dựa trên giá trị Toggle
+
+	if autoEggLoop then
+		while autoEggLoop do
+			-- Lấy giá trị trứng được chọn từ Dropdown
+			local selectedEgg = EggDropdown.Value or "Ultimate" -- Mặc định là "Ultimate" nếu không có giá trị
+
+			local args = {
+				[1] = selectedEgg, -- Tên trứng được chọn
+				[2] = nil, -- Placeholder for unknown argument
+				[3] = nil, -- Triple Egg (Gamepass)
+				[4] = false, -- Auto Egg (Gamepass)
+				[5] = nil, -- Placeholder for unknown argument
+				[6] = true -- Max Egg
+			}
+
+			-- Gửi yêu cầu đến máy chủ để mở trứng
+			game:GetService("ReplicatedStorage").Packages.Knit.Services.EggService.RF.purchaseEgg:InvokeServer(unpack(args))
+		end
+	end
+end)
+
+local AutoClaimPetEventToggle = Tabs.Main:AddToggle("AutoClaimPetEvent", {
+	Title = "Auto Claim Pet Event",
+	Default = false
+})
+
+AutoClaimPetEventToggle:OnChanged(function()
+	if AutoClaimPetEventToggle.Value then
+		startThread("AutoClaimPetEvent", function()
+			while AutoClaimPetEventToggle.Value do
+				-- Gửi yêu cầu nhận phần thưởng Pet Event
+				game:GetService("ReplicatedStorage").Packages.Knit.Services.EventEggService.RF.Claim:InvokeServer()
+				task.wait(60) -- Chờ 60 giây trước khi nhận lại
+			end
+		end)
+	else
+		stopThread("AutoClaimPetEvent") -- Dừng luồng AutoClaimPetEvent
+	end
+end)
+-- Thêm Toggle cho Auto Dragon Trial
+local AutoDragonTrialToggle = Tabs.Main:AddToggle("AutoDragonTrial", {
+	Title = "Auto Dragon Trial",
+	Default = false
+})
+
+-- Hàm kiểm tra và tham gia Dragon Trial
+autoDragonTrialActive = false
+
+AutoDragonTrialToggle:OnChanged(function()
+	autoDragonTrialActive = AutoDragonTrialToggle.Value
+
+	if autoDragonTrialActive then
+		startThread("AutoDragonTrial", function()
+			while autoDragonTrialActive do
+				local TextLabel = game:GetService("Players").LocalPlayer.PlayerGui.Misc.Trials.Timer.Dragon.Timer
+				if TextLabel then
+
+
+					if TextLabel.Text == "Ready!" then
+						--  Dừng Auto NPC hoàn toàn trước khi tham gia Trial
+						if isAutoFarming then
+							stopThread("NPCFarm")  -- Dừng Auto NPC
+							isAutoFarming = false  -- Đặt trạng thái Auto NPC thành false
+							task.wait(1)  -- Đợi 1 giây để đảm bảo NPCFarm đã dừng
+						end
+
+						--  Chờ 5 giây trước khi gửi request vào Dragon Trial
+						task.wait(8)
+
+						--  Tham gia Dragon Trial
+						game:GetService("ReplicatedStorage").Packages.Knit.Services.WrestleService.RF.OnClick:InvokeServer()
+						game:GetService("ReplicatedStorage").Packages.Knit.Services.ChampionshipService.RF.RequestJoin:InvokeServer("Dragon")
+
+						-- Lấy thời gian countdown từ GUI
+						local minutes, seconds = TextLabel.Text:match("(%d+)%s?m%s?(%d+)%s?s")
+						local countdown = (tonumber(minutes) or 5) * 60 + (tonumber(seconds) or 0)
+						local startTime = os.time()
+
+						while autoDragonTrialActive do
+							task.wait(1)
+							local elapsedTime = os.time() - startTime
+							local timeRemaining = countdown - elapsedTime
+
+
+							--  Dừng vòng lặp chính xác khi timeRemaining == 0
+							if timeRemaining <= 0 then
+								break
+							end
+						end
+
+						--  Chờ thêm 2 giây trước khi tiếp tục Auto NPC
+						task.wait(11)
+
+						--  Tiếp tục Auto NPC chỉ khi Auto Dragon Trial vẫn bật
+						if autoDragonTrialActive then
+							isAutoFarming = true
+							startThread("NPCFarm", function()
+								while isAutoFarming do
+									for _, npc in ipairs(npcPath:GetChildren()) do
+										if not isAutoFarming then break end
+										if npc:IsA("Model") and npc:FindFirstChild("Table") and npc.Table:FindFirstChild("PlayerRoot") then
+											local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+											if humanoid then   
+												humanoid.CFrame = npc.Table.PlayerRoot.CFrame
+												task.wait(0.5)
+												interactWithNPC()
+												task.wait(3.5)
+											end
+										end
+									end
+									task.wait(1)
+								end
+							end)
+						end
+					end
+				end
+				task.wait(1)
+			end
+		end)
+	else
+		stopThread("AutoDragonTrial")
+	end
 end)
 
 -- Thêm Toggle cho Auto Training Barbell
 local AutoTrainingToggle = Tabs.Main:AddToggle("AutoTraining", {
-    Title = "Auto Training Barbell",
-    Default = false
+	Title = "Auto Training Barbell",
+	Default = false
 })
 
 AutoTrainingToggle:OnChanged(function()
-    if AutoTrainingToggle.Value then
-        startThread("AutoTraining", function()
-            while AutoTrainingToggle.Value do
-                -- Chọn Auto Training Biceps
-                local args1 = {
-                    [1] = "AutoTraining",
-                    [2] = {
-                        ["TrainingType"] = "Biceps"
-                    }
-                }
-                game:GetService("ReplicatedStorage").Packages.Knit.Services.AutoService.RF.SetRejoin:InvokeServer(unpack(args1))
-                task.wait(2)
+	if AutoTrainingToggle.Value then
+		startThread("AutoTraining", function()
+			while AutoTrainingToggle.Value do
+				-- Chọn Auto Training Biceps
+				local args1 = {
+					[1] = "AutoTraining",
+					[2] = {
+						["TrainingType"] = "Biceps"
+					}
+				}
+				game:GetService("ReplicatedStorage").Packages.Knit.Services.AutoService.RF.SetRejoin:InvokeServer(unpack(args1))
+				task.wait(2)
 
 
-                -- Chọn Barbell
-                local args2 = {
-                    [1] = "DragonTemple",
-                    [2] = "Barbells",
-                    [3] = "DragonTemple3"
-                }
-                game:GetService("ReplicatedStorage").Packages.Knit.Services.ToolService.RE.onEquipRequest:FireServer(unpack(args2))
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
-                task.wait(0.4)
+				-- Chọn Barbell
+				local args2 = {
+					[1] = "DragonTemple",
+					[2] = "Barbells",
+					[3] = "DragonTemple3"
+				}
+				game:GetService("ReplicatedStorage").Packages.Knit.Services.ToolService.RE.onEquipRequest:FireServer(unpack(args2))
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
+				game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onClick"):FireServer()
+				task.wait(0.4)
 
-            end
-        end)
-    else
-        stopThread("AutoTraining")
-    end
+			end
+		end)
+	else
+		stopThread("AutoTraining")
+	end
 end)
-
-
-
 
 -- SaveManager and InterfaceManager Setup
 SaveManager:SetLibrary(Fluent)
@@ -185,9 +598,9 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 Window:SelectTab(1)
 
 Fluent:Notify({
-    Title = "Fluent",
-    Content = "The script has been loaded.",
-    Duration = 8
+	Title = "Fluent",
+	Content = "The script has been loaded.",
+	Duration = 5
 })
 
 -- Load Auto-Config
