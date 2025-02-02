@@ -3,7 +3,7 @@ local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local WebhookURL = "https://discord.com/api/webhooks/1335708371394887712/wALpD7OPn5iT1mk1_MQ659jd-V0mDSNZ48qf6ceWkiSjoa9YrlE2t0b9nUhEZd74rGok"
 
--- Tìm GUI Inventory
+-- Hàm tìm số lượng key từ GUI Inventory
 local function GetKeyAmount(keyName)
     local inventory = Player:FindFirstChild("PlayerGui")
     if inventory then
@@ -11,16 +11,28 @@ local function GetKeyAmount(keyName)
         if gameUI then
             local menus = gameUI:FindFirstChild("Menus")
             if menus then
-                local inventoryMenu = menus:FindFirstChild("Inventory")
-                if inventoryMenu then
-                    local display = inventoryMenu:FindFirstChild("Display")
+                local itemsMenu = menus:FindFirstChild("Items")
+                if itemsMenu then
+                    local display = itemsMenu:FindFirstChild("Display")
                     if display then
                         local items = display:FindFirstChild("Items")
                         if items then
-                            -- Lặp qua danh sách vật phẩm để tìm keyName
-                            for _, item in pairs(items:GetChildren()) do
-                                if item:IsA("TextLabel") and item.Name == keyName then
-                                    return tonumber(item.Text) or 0
+                            local mainFrame = items:FindFirstChild("MainFrame")
+                            if mainFrame then
+                                local scrollingFrame = mainFrame:FindFirstChild("ScrollingFrame")
+                                if scrollingFrame then
+                                    local keyStorage = scrollingFrame:FindFirstChild("KeysStorage")
+                                    if keyStorage then
+                                        local objects = keyStorage:FindFirstChild("Objects")
+                                        if objects then
+                                            -- Lặp qua danh sách vật phẩm để tìm keyName
+                                            for _, item in pairs(objects:GetChildren()) do
+                                                if item:IsA("TextLabel") and item.Name == keyName then
+                                                    return tonumber(item.Text) or 0
+                                                end
+                                            end
+                                        end
+                                    end
                                 end
                             end
                         end
