@@ -513,11 +513,11 @@ AutoTrainingToggle:OnChanged(function()
                 -- Chọn Barbell sau mỗi 4 giây
                 game:GetService("ReplicatedStorage").Packages.Knit.Services.ToolService.RE.onEquipRequest:FireServer("18", "Grips", "Field12")
                 
-                -- Lặp onClick 40 lần mỗi 0.1 giây (tương đương 4 giây)
-                for i = 1, 40 do
+                -- Lặp onClick 80 lần mỗi 0.05 giây (tương đương 4 giây)
+                for i = 1, 80 do
                     if not AutoTrainingToggle.Value then break end
                     game:GetService("ReplicatedStorage").Packages.Knit.Services.ToolService.RE.onClick:FireServer()
-                    task.wait(0.1)
+                    task.wait(0.05)
                 end
             end
         end)
@@ -525,6 +525,7 @@ AutoTrainingToggle:OnChanged(function()
         stopThread("AutoTraining")
     end
 end)
+
 
 -- SaveManager and InterfaceManager Setup
 SaveManager:SetLibrary(Fluent)
