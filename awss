@@ -533,12 +533,9 @@ local AutoRollAuraToggle = Tabs.Egg:AddToggle("AutoRollAura", {
 
 AutoRollAuraToggle:OnChanged(function()
     isAutoRollingAura = AutoRollAuraToggle.Value
-    print("[DEBUG] Auto Roll Aura toggled: " .. tostring(isAutoRollingAura))
-    
     if isAutoRollingAura then
         startThread("RollAura", function()
             while isAutoRollingAura do
-                print("[DEBUG] Rolling aura...")
                 game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("AuraService"):WaitForChild("RF"):WaitForChild("Roll"):InvokeServer()
                 task.wait(1) 
             end
