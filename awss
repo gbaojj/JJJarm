@@ -389,7 +389,7 @@ AutoRollAuraToggle:OnChanged(function()
     end
 end)
 
-local FightSection = Tabs.AutoFight:AddSection("Auto Fight")
+local FightSection = Tabs.Main:AddSection("Auto Fight")
 
 local modelNames = {}
 local models = {}
@@ -422,7 +422,7 @@ findModels(armWrestlingFolder)
 sortModels()
 
 -- Reordered UI Elements (Dropdown at top)
-local modelDropdown = Tabs.AutoFight:AddDropdown("ModelDropdown", {
+local modelDropdown = Tabs.Main:AddDropdown("ModelDropdown", {
     Title = "Select Boss",
     Values = modelNames,
     Multi = false,
