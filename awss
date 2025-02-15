@@ -417,8 +417,7 @@ AutoBossToggle:OnChanged(function()
                     [3] = "TreasureIsland"
                 }
                 game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ArmWrestleService"):WaitForChild("RE"):WaitForChild("onEnterNPCTable"):FireServer(unpack(args))
-                
-                task.wait(2) -- Adjust delay as needed
+                task.wait(1) -- Adjust delay as needed
             end
         end)
     else
@@ -431,7 +430,8 @@ AutoClickBossToggle:OnChanged(function()
         startThread("AutoClickBoss", function()
             while AutoClickBossToggle.Value do
                 game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ArmWrestleService"):WaitForChild("RE"):WaitForChild("onClickRequest"):FireServer()
-                task.wait(0.2) -- Adjust click interval as needed
+		game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ArmWrestleService"):WaitForChild("RE"):WaitForChild("onClickRequest"):FireServer()
+                task.wait(0.05) -- Adjust click interval as needed
             end
         end)
     else
