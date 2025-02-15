@@ -202,7 +202,7 @@ local function interactWithNPC()
     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 end
 
-local AutoBeatNPCToggle = Tabs.Main:AddToggle("AutoBeatNPC", {
+local AutoBeatNPCToggle = Tabs.Egg:AddToggle("AutoBeatNPC", {
     Title = "Auto Beat NPC",
     Default = false
 })
