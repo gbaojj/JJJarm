@@ -369,6 +369,53 @@ AutoTrainingToggle:OnChanged(function()
         stopThread("AutoTraining")
     end
 end)
+-- Tạo Toggle cho Auto Punch trong UI
+local AutoPunchToggle = Tabs.Main:AddToggle("AutoPunch", {
+    Title = "Auto Punch",
+    Default = false
+})
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local punchEvent = replicatedStorage:WaitForChild("Packages"):WaitForChild("Knit")
+    :WaitForChild("Services"):WaitForChild("PunchBagService")
+    :WaitForChild("RE"):WaitForChild("onGiveStats")
+
+-- Tọa độ đích
+local targetPosition = Vector3.new(-243.82, 22.46, 8032.32)
+
+-- Trạng thái Auto Punch
+local autoPunch = false
+
+-- Hàm teleport đến vị trí đích
+local function teleportToPosition()
+    if character and hrp then
+        hrp.CFrame = CFrame.new(targetPosition)
+    end
+end
+
+-- Hàm Auto Punch Loop
+local function autoPunchLoop()
+    while autoPunch do
+        punchEvent:FireServer("TreasureIsland", "VIP", true)
+        wait(0.1) -- Điều chỉnh tốc độ đánh
+    end
+end
+
+-- Khi bật/tắt Toggle Auto Punch
+AutoPunchToggle:OnChanged(function(value)
+    autoPunch = value
+    print("Auto Punch:", autoPunch)
+
+    if autoPunch then
+        teleportToPosition() -- Dịch chuyển đến vị trí đánh
+        autoPunchLoop() -- Bắt đầu đánh tự động
+    end
+end)
+
 
 local AutoRollAuraToggle = Tabs.Egg:AddToggle("AutoRollAura", {
     Title = "Auto Roll Aura",
