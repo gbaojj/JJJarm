@@ -352,9 +352,9 @@ AutoTrainingToggle:OnChanged(function()
             while AutoTrainingToggle.Value do
                 -- Chọn Barbell sau mỗi 4 giây
 		local args = {
-    			[1] = "TreasureIsland",
-    			[2] = "Dumbells",
-    			[3] = "TreasureIsland12"
+    			[1] = "18",
+    			[2] = "Grips",
+    			[3] = "Field12"
 		}
 		game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ToolService"):WaitForChild("RE"):WaitForChild("onEquipRequest"):FireServer(unpack(args))    
                 -- Lặp onClick 80 lần mỗi 0.05 giây (tương đương 4 giây)
