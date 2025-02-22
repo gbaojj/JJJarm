@@ -486,7 +486,7 @@ AutoClickBossToggle:OnChanged(function()
     end
 end)
 
-local AutoSpinToggle = Tabs.Main:AddToggle("AutoSpin", {
+local AutoSpinToggle = Tabs.Egg:AddToggle("AutoSpin", {
     Title = "Auto Spin",
     Default = false
 })
