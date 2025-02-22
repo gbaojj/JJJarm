@@ -486,25 +486,6 @@ AutoClickBossToggle:OnChanged(function()
     end
 end)
 
-local AutoSpinToggle = Tabs.Main:AddToggle("AutoSpin", {
-    Title = "Auto Spin",
-    Default = false
-})
-
-AutoSpinToggle:OnChanged(function()
-    if AutoSpinToggle.Value then
-        startThread("AutoSpin", function()
-            local args = {
-    		[1] = "Ghost Fortune",
-    		[2] = "x25"
-		}
-		game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("SpinnerService"):WaitForChild("RF"):WaitForChild("Spin"):InvokeServer(unpack(args))
-            task.wait(3)
-        end)
-    else
-        stopThread("AutoSpin")
-    end
-end)
 
 
 -- SaveManager and InterfaceManager Setup
