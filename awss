@@ -460,7 +460,7 @@ AutoBossToggle:OnChanged(function()
                 local selectedBoss = BossDropdown.Value or "CaptainAshfang"
                 local args = {
                     [1] = selectedBoss,
-                    [2] = workspace:WaitForChild("GameObjects"):WaitForChild("ArmWrestling"):WaitForChild("GhostIsland"):WaitForChild("NPC"):WaitForChild(selectedBoss):WaitForChild("Table"),
+                    [2] = workspace:WaitForChild("GameObjects"):WaitForChild("ArmWrestling"):WaitForChild("GhostIsland"):WaitForChild("NPC"):WaitForChild("CaptainAshfang"):WaitForChild("Table"),
                     [3] = "GhostIsland"
                 }
                 game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ArmWrestleService"):WaitForChild("RE"):WaitForChild("onEnterNPCTable"):FireServer(unpack(args))
@@ -495,10 +495,10 @@ AutoSpinToggle:OnChanged(function()
     if AutoSpinToggle.Value then
         startThread("AutoSpin", function()
             local args = {
-                [1] = "Ninja Fortune",
-                [2] = "x25"
-            }
-            game:GetService("ReplicatedStorage").Packages.Knit.Services.SpinnerService.RF.Spin:InvokeServer(unpack(args))
+    		[1] = "Ghost Fortune",
+    		[2] = "x25"
+		}
+		game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("SpinnerService"):WaitForChild("RF"):WaitForChild("Spin"):InvokeServer(unpack(args))
             task.wait(3)
         end)
     else
