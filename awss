@@ -448,7 +448,7 @@ local AutoClickBossToggle = Tabs.Main:AddToggle("AutoClickBossToggle", {
 
 local BossDropdown = Tabs.Main:AddDropdown("BossDropdown", {
     Title = "Select Boss",
-    Values = {"CaptainAshfang"}
+    Values = {"CaptainAshfang"},
     Multi = false,
     Default = "CaptainAshfang"
 })
