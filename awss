@@ -448,20 +448,20 @@ local AutoClickBossToggle = Tabs.Main:AddToggle("AutoClickBossToggle", {
 
 local BossDropdown = Tabs.Main:AddDropdown("BossDropdown", {
     Title = "Select Boss",
-    Values = {"PirateKing", "GhostPirate"},
+    Values = {"CaptainAshfang"}
     Multi = false,
-    Default = "PirateKing"
+    Default = "CaptainAshfang"
 })
 
 AutoBossToggle:OnChanged(function()
     if AutoBossToggle.Value then
         startThread("AutoBoss", function()
             while AutoBossToggle.Value do
-                local selectedBoss = BossDropdown.Value or "PirateKing"
+                local selectedBoss = BossDropdown.Value or "CaptainAshfang"
                 local args = {
                     [1] = selectedBoss,
-                    [2] = workspace:WaitForChild("GameObjects"):WaitForChild("ArmWrestling"):WaitForChild("TreasureIsland"):WaitForChild("NPC"):WaitForChild(selectedBoss):WaitForChild("Table"),
-                    [3] = "TreasureIsland"
+                    [2] = workspace:WaitForChild("GameObjects"):WaitForChild("ArmWrestling"):WaitForChild("GhostIsland"):WaitForChild("NPC"):WaitForChild(selectedBoss):WaitForChild("Table"),
+                    [3] = "GhostIsland"
                 }
                 game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ArmWrestleService"):WaitForChild("RE"):WaitForChild("onEnterNPCTable"):FireServer(unpack(args))
                 task.wait(1) -- Adjust delay as needed
@@ -483,6 +483,26 @@ AutoClickBossToggle:OnChanged(function()
         end)
     else
         stopThread("AutoClickBoss")
+    end
+end)
+
+local AutoSpinToggle = Tabs.Main:AddToggle("AutoSpin", {
+    Title = "Auto Spin",
+    Default = false
+})
+
+AutoSpinToggle:OnChanged(function()
+    if AutoSpinToggle.Value then
+        startThread("AutoSpin", function()
+            local args = {
+                [1] = "Ninja Fortune",
+                [2] = "x25"
+            }
+            game:GetService("ReplicatedStorage").Packages.Knit.Services.SpinnerService.RF.Spin:InvokeServer(unpack(args))
+            task.wait(3)
+        end)
+    else
+        stopThread("AutoSpin")
     end
 end)
 
